@@ -17,6 +17,40 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.1.1.1-dev - 2026-09-03
+
+Documentation-only batch: `ref/docs/` goes from empty to populated, and a
+branch-scoping question about it gets ruled on. No code changed and no
+defect was fixed, so this stays a 4th-number bump rather than a core-feature
+one — see the reasoning below.
+
+- **Populated `ref/docs/` with one page per script**, plus `ref/docs/README.md`
+  as an index: `bootstrap-new-project.md`, `check-prerequisites.md`,
+  `check-superpowers.md`, `install-global-entrypoint.md`,
+  `lib-claude-home.md`, `merge-memory.md`, and `validate-luna-core-setup.md`,
+  covering the seven scripts in `scripts/`. `CLAUDE.md` has always told every
+  session to consult `ref/docs/` before reading source, but the folder was
+  empty, so that instruction pointed at nothing while 1,847 lines of shell
+  sat unexplained. Each page covers what its script does, how it's invoked,
+  what it writes inside versus outside the repo, its refusal conditions, and
+  the non-obvious traps mined from source comments — several of which record
+  real failures. The pages cite `tests/notes/live-checks.md` for measured
+  behavior rather than duplicating it.
+- **Ruled: `ref/docs/*.md` pages are dev-only, not shared with `main`.**
+  `main` is what a fresh consumer clones — someone who has never run this
+  project — and these pages document *this* project's own internals, useless
+  and confusing to that reader. This reverses the previous assumption (that
+  `ref/docs/*.md` shipped on both branches like `CLAUDE.md`/`README.md`/
+  `CHANGELOG.md`) and is now encoded in both `luna-core-docs-writer` copies
+  (`agents/` and `.claude/agents/`), `CLAUDE.md`, and `README.md`.
+  `ref/docs/` itself keeps the partial exception it already had for its
+  folder-plus-keeper-file: the pages are stripped at merge time like
+  `.claude-memory/`, `handoff/`, and `.claude/agents/*.md`, but the empty
+  folder and its `.gitkeep` survive on `main`, since the "check `ref/docs/`
+  first" instruction must still point at something real there — the same
+  keeper-file reasoning `CLAUDE.md` already applies to every other
+  referenced-but-empty path.
+
 ## ver-0.1.1.0-dev - 2026-09-02
 
 Fixes and rulings found by testing after `ver-0.1.0.0-dev` was committed and

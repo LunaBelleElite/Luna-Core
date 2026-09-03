@@ -11,7 +11,7 @@ Filled in by `scripts/bootstrap-new-project.sh` when this project was set up fro
 - **Agents:** `luna-core-docs-writer`, `luna-core-research`, `luna-core-qa-tester`, `luna-core-implementer` (functional copies in `.claude/agents/` — that's where Claude Code actually looks to invoke them by name; `agents/` is Luna-Core's own template source, not a working location)
 - **Commands:** `/wake-up`, `/debrief` (see `commands/`, copied into `.claude/commands/`)
 - **Dependencies:** superpowers-extended-cc, Claude Code on Steroids (see README's "Dependency: superpowers plugins")
-- **Versioning:** currently `ver-0.1.1.0-dev` (see "Versioning scheme" below and `CHANGELOG.md` for the full history)
+- **Versioning:** currently `ver-0.1.1.1-dev` (see "Versioning scheme" below and `CHANGELOG.md` for the full history)
 
 (This is Luna-Core's own toolkit, listed here since this file is also Luna-Core's own live `CLAUDE.md`. For a new project set up from Luna-Core, `bootstrap-new-project.sh` replaces this list with that project's actual agent names and starting version.)
 
@@ -128,6 +128,16 @@ and never extended to `tests/` or `.claude-memory/`, which is why the
 validator now checks them rather than trusting that bootstrap got it right.
 When you add a path reference to any template, add its creation and its check
 in the same change.
+
+This is also why `ref/docs/` is not stripped as a whole from `main`, where a
+`main` branch exists, even though its `.md` pages are dev-only and never
+reach `main`: this rule says the "check `ref/docs/` first" instruction above
+must still point at something real on any branch, including `main`, so the
+folder and its keeper file (`ref/docs/.gitkeep`) survive there empty while
+only the pages are stripped at merge time. Deleting the whole folder along
+with the pages would recreate the exact failure this section exists to
+prevent — see `<projectname>-docs-writer`'s "Branch discipline" section for
+the merge mechanics.
 
 ## Git commits require explicit permission
 

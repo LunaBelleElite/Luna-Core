@@ -26,10 +26,15 @@ current and correctly scoped to the branch they're on:
 - `README.md`
 - `CHANGELOG.md`
 - `ref/docs/*.md` — per-module/file explanations (see root CLAUDE.md: these
-  are the primary reference docs, read before source files). Ships on both
-  branches, unlike agents below — this is documentation *about the
-  software itself*, useful to any future maintainer regardless of tooling,
-  not a process/tooling artifact.
+  are the primary reference docs, read before source files). Dev-only, like
+  the paths below — `main` is what a fresh consumer clones, someone who has
+  never run this project, and these pages document *this* project's own
+  internals, useless and confusing to them. Not treated identically to the
+  paths below, though: the pages themselves never reach `main`, but the
+  `ref/docs/` folder and its keeper file do, empty, because `CLAUDE.md`
+  tells every session to consult `ref/docs/` before reading source — see
+  the branch-discipline table and merge checklist below for the exact
+  mechanics.
 - `.claude/agents/*.md` — this project's custom agent definitions. This is
   the actual functional location Claude Code looks in to invoke a custom
   subagent by name — a bare `agents/` folder at the project root is
@@ -57,17 +62,30 @@ current and correctly scoped to the branch they're on:
 
 | File(s) | dev | main |
 |---|---|---|
-| `CLAUDE.md`, `README.md`, `CHANGELOG.md`, `ref/docs/*.md` | yes | yes |
+| `CLAUDE.md`, `README.md`, `CHANGELOG.md` | yes | yes |
 | `.claude/agents/*.md` | yes | **never** |
 | `.claude-memory/` (working memory) | yes | **never** |
 | `handoff/` (STATUS.md, HANDOFF.md) | yes | **never** |
+| `ref/docs/*.md` (the pages) | yes | **never** (folder + keeper file survive — see below) |
 
 `.claude-memory/` and `handoff/` hold this machine's/session's working
 state for this project — genuinely useful for picking the project back up
 on another machine, but not something a project that *clones from* main
 should ever receive. `.claude/agents/*.md` is development tooling, not
-part of what the finished program needs to run. All three must exist on
-`dev` and must never reach `main`.
+part of what the finished program needs to run. `ref/docs/*.md` pages
+document *this* project's own internals — useless and confusing to
+someone who clones `main` having never run this project themselves. All
+four must exist on `dev` and must never reach `main` **as content**.
+
+`ref/docs/` is the one exception to "never reach `main`" as a *folder*.
+The `.md` pages inside it are stripped like the other three, but the
+folder itself, with its keeper file (`ref/docs/.gitkeep`), is not — it
+must still exist on `main`, empty, because `CLAUDE.md` tells every
+session to consult `ref/docs/` before reading source. Deleting the whole
+folder during a merge would be the exact "referenced folder absent after
+a clone" failure `CLAUDE.md`'s "A referenced folder must be created, with
+a keeper file" section exists to prevent. See step 3 of the merge
+checklist below for the exact command.
 
 If the project's README or CLAUDE.md declares additional dev-only paths
 beyond these, treat those the same way.
@@ -131,15 +149,31 @@ This is the check that matters most:
 1. Confirm you're merging *into* `main` from `dev` (not the reverse).
 2. Run the merge without finalizing it: `git merge --no-commit --no-ff dev`.
 3. Check what the merge staged: `git status`. If `.claude-memory/`,
-   `handoff/`, `.claude/agents/` (or any other declared dev-only path)
-   appears, remove it from the merge: `git rm -r --cached <path>` and
-   delete it from the working tree, so `main`'s resulting tree excludes it
-   while `dev`'s own history keeps it untouched.
+   `handoff/`, `.claude/agents/` (or any other declared dev-only path,
+   excluding `ref/docs/` — see next) appears, remove it entirely from the
+   merge: `git rm -r --cached <path>` and delete it from the working tree,
+   so `main`'s resulting tree excludes it while `dev`'s own history keeps
+   it untouched.
+
+   `ref/docs/*.md` gets a **partial** strip, not that same full removal —
+   the folder must survive on `main` (empty-but-present, same keeper-file
+   reasoning as any other path a template tells a project to use), only
+   its pages are dev-only:
+   ```
+   git rm --cached ref/docs/*.md
+   rm ref/docs/*.md
+   ```
+   Leave `ref/docs/.gitkeep` in place and staged, so `main` still has the
+   empty `ref/docs/` directory. Running the same `git rm -r --cached
+   ref/docs` used for the other three would delete the whole folder —
+   don't do that.
 4. In `CHANGELOG.md`, strip the `-dev` suffix from every version header
    being merged in — don't invent new version numbers (see "Versioning &
-   CHANGELOG entries" above). Verify CLAUDE.md/README.md/ref/docs are also
-   current for what's being published — this is the point a project
-   cloning from main will see. Update them if they aren't.
+   CHANGELOG entries" above). Verify CLAUDE.md/README.md are also current
+   for what's being published — this is the point a project cloning from
+   `main` will see. Update them if they aren't. `ref/docs/*.md` pages are
+   not part of this check, since they don't publish at all — just confirm
+   the empty folder and its keeper file survived step 3's strip.
 5. Report the reviewed diff back and stop — do not run `git commit` to
    finalize the merge, and do not `git push`.
 

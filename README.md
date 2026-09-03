@@ -197,8 +197,9 @@ saying so — keep that note on any new agent added here.
   `handoff/` working areas. Invoke it on demand for a docs pass, and always
   before a commit to `dev` or a merge into `main` — it updates the right files
   and enforces which files are allowed on which branch (in particular that
-  `.claude-memory/`, `handoff/`, and `.claude/agents/*.md` never reach `main`,
-  while `ref/docs/*.md` does).
+  `.claude-memory/`, `handoff/`, `.claude/agents/*.md`, and `ref/docs/*.md`
+  pages never reach `main` — though `ref/docs/`'s folder and keeper file do,
+  empty, since it's a path `CLAUDE.md` tells every session to consult).
 - `luna-core-research` — a read-only research specialist for multi-round,
   open-ended investigation. Invoke it instead of researching in the main
   conversation, which permanently bloats history that gets re-read every later
@@ -364,5 +365,9 @@ one.
 - `main` — does not exist yet. It will hold the clean template: no project
   history, so someone can point their AI at the repo and its README and go.
   Published by explicitly merging `dev` into it, with the dev-only content
-  (`.claude-memory/`, `handoff/`, `.claude/agents/`) stripped first. Both branches carry the same version number; `dev`'s string has
-  `-dev` appended.
+  (`.claude-memory/`, `handoff/`, `.claude/agents/`, and `ref/docs/*.md`
+  pages) stripped first. `ref/docs/` itself is a partial exception: the
+  pages are stripped like the rest, but the empty folder and its keeper
+  file survive on `main`, since `CLAUDE.md` tells every session to consult
+  `ref/docs/` before reading source. Both branches carry the same version
+  number; `dev`'s string has `-dev` appended.
