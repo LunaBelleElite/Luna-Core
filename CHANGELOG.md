@@ -17,6 +17,20 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.1.2.2-dev - 2026-09-03
+
+Doc-only: made the Astrid pointer explicit about which branch, since it
+previously just said "clone this repo" without naming one.
+
+- **Both the `CLAUDE.md` bullet and `bootstrap-new-project.sh`'s generated
+  copy now say `dev` explicitly**, and note that Astrid's `main` has been
+  retired — it was a pure mirror of `dev` (verified: zero commits unique to
+  `dev`, no content difference beyond version-stamp wording), so maintaining
+  a second branch was pure overhead for zero benefit. `dev` is also already
+  that repo's default branch, so a plain clone already got it — this just
+  makes the intent explicit rather than leaning on a default that could
+  change without anyone here noticing.
+
 ## ver-0.1.2.1-dev - 2026-09-03
 
 Doc-only addition: pointed Luna-Core at Astrid, its sibling personality-and-voice
