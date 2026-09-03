@@ -113,13 +113,16 @@ into a new project, rename the file and its `name:` field, and replace the
 saying so — keep that note on any new agent added here.
 
 - `luna-core-docs-writer` — owns `CLAUDE.md`, `README.md`, `CHANGELOG.md`,
-  `ref/docs/*.md`, `.claude/agents/*.md`, and the `.claude-memory/` and
-  `handoff/` working areas. Invoke it on demand for a docs pass, and always
-  before a commit to `dev` or a merge into `main` — it updates the right files
-  and enforces which files are allowed on which branch (in particular that
-  `.claude-memory/`, `handoff/`, `.claude/agents/*.md`, and `ref/docs/*.md`
-  pages never reach `main` — though `ref/docs/`'s folder and keeper file do,
-  empty, since it's a path `CLAUDE.md` tells every session to consult).
+  `ref/docs/*.md`, `.claude/agents/*.md`, and the `.claude-memory/`,
+  `handoff/`, and `tests/` working areas. Invoke it on demand for a docs
+  pass, and always before a commit to `dev` or a merge into `main` — it
+  updates the right files and enforces which *content* is allowed on which
+  branch. Not "these paths never reach `main`": every one of `ref/docs/`,
+  `.claude-memory/`, `handoff/`, `.claude/agents/*.md`, and `tests/`
+  survives on `main` — the *path*, since `CLAUDE.md` and the setup validator
+  both expect it to exist — carrying placeholder or template content instead
+  of this project's own real, accumulated, or machine-specific working
+  state, which stays on `dev`.
 - `luna-core-research` — a read-only research specialist for multi-round,
   open-ended investigation. Invoke it instead of researching in the main
   conversation, which permanently bloats history that gets re-read every later

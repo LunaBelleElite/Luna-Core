@@ -17,6 +17,16 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.1.3.1-dev - 2026-09-03
+
+Doc-only: `main` is live now, and `README.md`'s "Agents" section still
+described docs-writer's job using the framing that `ver-0.1.3.0-dev` had
+already superseded — "these paths never reach `main`" — rather than the
+resolved policy (the path survives with placeholder content; only this
+project's own real working state stays on `dev`). Caught and fixed on
+`main` itself before that commit, and now applied here too so `dev`'s copy
+doesn't drift back into stating a rule that no longer holds.
+
 ## ver-0.1.3.0-dev - 2026-09-03
 
 Fixed the front door, ahead of this project being public. A stranger arriving
