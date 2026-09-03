@@ -17,6 +17,60 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.1.3.0-dev - 2026-09-03
+
+Fixed the front door, ahead of this project being public. A stranger arriving
+here — a person or an AI session — had nowhere to start, and one of the few
+instructions actually aimed at them could not be run as written.
+
+- **`README.md` rebuilt around someone who has never seen this project.** It
+  used to open with a "Current state" status report and read as a development
+  log, offering no onboarding path at all, and its example bootstrap command
+  hardcoded the author's own machine path — so anyone who copied it ran a
+  command pointing at a directory that does not exist on their computer. The
+  command now uses `<path-to-luna-core-clone>` placeholders, and a numbered
+  "Getting started" section leads with clone, bootstrap, validate, open.
+  Maintainer-only material (the copy-from-it-never-write-back rule, per-machine
+  setup, publishing) moved into a "Maintaining a Luna-Core checkout itself"
+  section at the bottom, where it reads as reference rather than as a barrier
+  standing between a newcomer and step one. Nothing was dropped, only
+  reordered.
+- **Added the disclaimers this needed before going public:** that it is a
+  vibe-coded personal project rather than a maintained product, that it is
+  built specifically around Claude and does not target other AI tools, a dated
+  development-status line, and an instruction to clone `main` rather than
+  `dev`.
+- **Stated the contribution policy plainly** — issues welcome, pull requests
+  not reviewed or merged. There is no repository setting that actually
+  prevents a pull request from being opened, so this has to be a stated
+  policy rather than a switch, and staying silent about it would waste a
+  stranger's time on work that was never going to be merged.
+- **`CLAUDE.md` now tells a cold session what its first action is.** The file
+  loads automatically, so the rules were always in front of a stranger's
+  session — but nothing told that session to orient itself first, and the Wake
+  Up protocol only triggers on phrases like "wake up" that someone new here
+  would never think to say, so nothing would ever prompt it. A new opening
+  section has such a session work out whether it is sitting in a Luna-Core
+  checkout or in a project bootstrapped from one (using the same tell the
+  setup validator already uses, rather than a second test that could drift
+  away from it), run the validator instead of assuming the setup is sound, and
+  read the README's "Getting started" section when it turns out to be in
+  Luna-Core itself.
+- **Settled what the `main` branch actually carries, before creating it.** The
+  rule had always been that this project's own working files never reach
+  `main`. Read as "those paths are absent from `main`," it would have produced
+  a branch that fails its own setup validator on a fresh clone — the validator
+  requires the handoff files, the memory folder and the agent definitions to
+  exist, and every project's `CLAUDE.md` sends sessions to those paths too.
+  The rule is now stated the way it was already applied to the reference-docs
+  folder: the *path* survives on `main`, carrying generic or template content,
+  and only this project's own accumulated and machine-specific content is left
+  behind. Recorded in the docs-writer agent, which owns the branch rules, so
+  the next merge follows the resolved version rather than rediscovering the
+  problem. The memory folder also gained the keeper file it had been missing
+  all along — it happened to be safe only because it currently holds real
+  files, and would have vanished from the next clone the moment it didn't.
+
 ## ver-0.1.2.2-dev - 2026-09-03
 
 Doc-only: made the Astrid pointer explicit about which branch, since it

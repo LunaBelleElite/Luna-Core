@@ -29,19 +29,23 @@ current and correctly scoped to the branch they're on:
   are the primary reference docs, read before source files). Dev-only, like
   the paths below — `main` is what a fresh consumer clones, someone who has
   never run this project, and these pages document *this* project's own
-  internals, useless and confusing to them. Not treated identically to the
-  paths below, though: the pages themselves never reach `main`, but the
-  `ref/docs/` folder and its keeper file do, empty, because `CLAUDE.md`
-  tells every session to consult `ref/docs/` before reading source — see
-  the branch-discipline table and merge checklist below for the exact
-  mechanics.
+  internals, useless and confusing to them. As with every dev-only path
+  here, it is the *content* that is dev-only and not the folder: the pages
+  never reach `main`, while `ref/docs/` and its keeper file do, empty,
+  because `CLAUDE.md` tells every session to consult `ref/docs/` before
+  reading source. See the branch-discipline table and merge checklist below
+  for the exact mechanics.
 - `.claude/agents/*.md` — this project's custom agent definitions. This is
   the actual functional location Claude Code looks in to invoke a custom
   subagent by name — a bare `agents/` folder at the project root is
   documentation only, invisible to the harness. Dev-only, same as
   `.claude-memory/` and `handoff/` below: agents are development tooling
   used to *build* the project, not something a user of the final shipped
-  program needs. Keep them current the same as anything else you own — if
+  program needs — and this project's filled-in copies additionally record
+  the absolute path of the machine they were written on, which is wrong for
+  everyone else. Same content-not-folder treatment as the rest; the
+  branch-discipline table below has the mechanics. Keep them current the
+  same as anything else you own — if
   an agent's instructions get edited mid-project, that's your concern same
   as a CLAUDE.md rule change.
 - `.claude-memory/` — the mirrored copy of this project's local Claude
@@ -56,39 +60,67 @@ current and correctly scoped to the branch they're on:
 - `handoff/` — `STATUS.md` (last-known computer name + timestamp) and
   `HANDOFF.md` (current handoff notes), used by the Wake Up and Debrief
   protocols (`.claude/commands/wake-up.md` / `.claude/commands/debrief.md`
-  in a project that's cloned these in). Dev-only.
+  in a project that's cloned these in). Dev-only, again as content: both
+  files still exist on `main`, carrying placeholder text.
 
 ## Branch discipline — the core of this role
 
 | File(s) | dev | main |
 |---|---|---|
-| `CLAUDE.md`, `README.md`, `CHANGELOG.md` | yes | yes |
-| `.claude/agents/*.md` | yes | **never** |
-| `.claude-memory/` (working memory) | yes | **never** |
-| `handoff/` (STATUS.md, HANDOFF.md) | yes | **never** |
-| `ref/docs/*.md` (the pages) | yes | **never** (folder + keeper file survive — see below) |
+| `CLAUDE.md`, `README.md`, `CHANGELOG.md` | yes | yes (`main`'s README may carry extra caveats of its own) |
+| `ref/docs/*.md` (the pages) | yes | **never** — folder + `ref/docs/.gitkeep` survive, empty |
+| `.claude-memory/` (working memory) | this project's real memory files | **never** — folder + `.gitkeep` survive, empty |
+| `handoff/STATUS.md`, `handoff/HANDOFF.md` | this project's real notes | **never** — replaced by fresh-bootstrap placeholder text |
+| `.claude/agents/*.md` | this project's filled-in copies | **never** — replaced, not deleted; see below |
 
-`.claude-memory/` and `handoff/` hold this machine's/session's working
-state for this project — genuinely useful for picking the project back up
-on another machine, but not something a project that *clones from* main
-should ever receive. `.claude/agents/*.md` is development tooling, not
-part of what the finished program needs to run. `ref/docs/*.md` pages
-document *this* project's own internals — useless and confusing to
-someone who clones `main` having never run this project themselves. All
-four must exist on `dev` and must never reach `main` **as content**.
+**The rule is about content, not about paths.** What must never reach
+`main` is *this* project's own accumulated working state: its session
+handoff notes, its memory files, its internal reference pages, and every
+absolute path naming the machine it was developed on. None of that is
+useful to someone who clones `main` having never run this project — and
+the machine paths are not merely useless but wrong, naming directories
+that do not exist on their computer.
 
-`ref/docs/` is the one exception to "never reach `main`" as a *folder*.
-The `.md` pages inside it are stripped like the other three, but the
-folder itself, with its keeper file (`ref/docs/.gitkeep`), is not — it
-must still exist on `main`, empty, because `CLAUDE.md` tells every
-session to consult `ref/docs/` before reading source. Deleting the whole
-folder during a merge would be the exact "referenced folder absent after
-a clone" failure `CLAUDE.md`'s "A referenced folder must be created, with
-a keeper file" section exists to prevent. See step 3 of the merge
-checklist below for the exact command.
+**The paths themselves survive on `main` regardless**, carrying generic,
+template, or empty-with-a-keeper content. That is not a courtesy; each of
+them is a path something still on `main` points at. `CLAUDE.md` tells
+every session to consult `ref/docs/` before reading source, lists the
+project's agents by name, and tells a session seeing the project for the
+first time to run `scripts/validate-luna-core-setup.sh` as one of its
+first actions — and that validator requires `handoff/STATUS.md`,
+`handoff/HANDOFF.md`, `.claude-memory/` and the agent definitions to
+actually exist. Deleting a folder outright therefore produces a `main`
+that fails its own validator on a fresh clone: the exact "referenced
+folder absent after a clone" failure `CLAUDE.md`'s "A referenced folder
+must be created, with a keeper file" section exists to prevent, and found
+by a stranger rather than by us.
 
-If the project's README or CLAUDE.md declares additional dev-only paths
-beyond these, treat those the same way.
+So, per path, on `main`:
+
+- **`ref/docs/`** — pages removed; the folder and `ref/docs/.gitkeep`
+  stay.
+- **`.claude-memory/`** — every memory file removed; `.gitkeep` stays.
+- **`handoff/`** — both files stay, rewritten to the fresh-bootstrap
+  placeholder text `scripts/bootstrap-new-project.sh` already generates
+  for a new project rather than this project's real notes. Reuse that
+  wording rather than inventing a second variant that then has two places
+  to drift.
+- **`.claude/agents/*.md`** — the files stay, but never this project's
+  filled-in copies. Those record an absolute repo path, so the validator's
+  agent-path check passes here and fails on anyone else's clone — the
+  worst shape of defect, invisible from the machine that created it. In
+  Luna-Core itself, replace each with a byte-identical copy of its
+  `agents/*.md` template source, which carries placeholders instead of
+  paths; that also satisfies the validator's template-versus-functional
+  drift check. A project bootstrapped from Luna-Core has no template
+  source to substitute, so rule on it deliberately — either strip the
+  machine-specific paths back to placeholders, or accept the validator
+  flagging them on someone else's clone. Do not carry them over
+  unexamined.
+
+If the project's README or CLAUDE.md declares additional working-state
+paths beyond these, treat them the same way: strip the content, keep the
+path.
 
 ## Versioning & CHANGELOG entries
 
@@ -148,32 +180,35 @@ memory-sync output land anywhere else.
 This is the check that matters most:
 1. Confirm you're merging *into* `main` from `dev` (not the reverse).
 2. Run the merge without finalizing it: `git merge --no-commit --no-ff dev`.
-3. Check what the merge staged: `git status`. If `.claude-memory/`,
-   `handoff/`, `.claude/agents/` (or any other declared dev-only path,
-   excluding `ref/docs/` — see next) appears, remove it entirely from the
-   merge: `git rm -r --cached <path>` and delete it from the working tree,
-   so `main`'s resulting tree excludes it while `dev`'s own history keeps
-   it untouched.
+3. Check what the merge staged: `git status`, then apply the per-path
+   treatment from "Branch discipline" above. **No path is removed
+   wholesale** — every one of these folders must still exist on `main`, so
+   never reach for `git rm -r --cached <folder>`; that is the single
+   mistake this step exists to prevent.
 
-   `ref/docs/*.md` gets a **partial** strip, not that same full removal —
-   the folder must survive on `main` (empty-but-present, same keeper-file
-   reasoning as any other path a template tells a project to use), only
-   its pages are dev-only:
    ```
-   git rm --cached ref/docs/*.md
-   rm ref/docs/*.md
+   git rm --cached ref/docs/*.md            && rm ref/docs/*.md
+   git rm --cached '.claude-memory/*.md'    && rm .claude-memory/*.md
    ```
-   Leave `ref/docs/.gitkeep` in place and staged, so `main` still has the
-   empty `ref/docs/` directory. Running the same `git rm -r --cached
-   ref/docs` used for the other three would delete the whole folder —
-   don't do that.
+   `ref/docs/.gitkeep` and `.claude-memory/.gitkeep` stay in place and
+   staged, leaving both directories present but empty on `main`.
+
+   `handoff/STATUS.md`, `handoff/HANDOFF.md` and every `.claude/agents/*.md`
+   are **rewritten in place**, not removed — to the bootstrap placeholder
+   text and to the `agents/*.md` template source respectively. Stage the
+   rewritten versions.
 4. In `CHANGELOG.md`, strip the `-dev` suffix from every version header
    being merged in — don't invent new version numbers (see "Versioning &
    CHANGELOG entries" above). Verify CLAUDE.md/README.md are also current
    for what's being published — this is the point a project cloning from
    `main` will see. Update them if they aren't. `ref/docs/*.md` pages are
    not part of this check, since they don't publish at all — just confirm
-   the empty folder and its keeper file survived step 3's strip.
+   the empty folder and its keeper file survived step 3.
+   Then **run `bash scripts/validate-luna-core-setup.sh` against the merged
+   working tree and confirm it exits clean.** This is the only thing that
+   proves the strip left `main` in a state a stranger's clone can actually
+   pass; reasoning it through from the file list is what produced the
+   wholesale-deletion mistake in the first place.
 5. Report the reviewed diff back and stop — do not run `git commit` to
    finalize the merge, and do not `git push`.
 

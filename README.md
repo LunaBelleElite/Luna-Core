@@ -1,152 +1,72 @@
 # Luna-Core
 
-The source-of-truth starter kit for new Claude Code projects: the default
-agents, the session protocols, the baseline `CLAUDE.md`, the versioning scheme,
-and the scripts that install all of it into a new project.
+A starter kit for Claude Code projects: default agents (a docs writer, a
+researcher, a test writer, an implementer), two session-boundary rituals
+(Wake Up / Debrief), a versioning scheme, and the scripts that install all of
+it into a brand-new project in two commands.
 
-Lives at `C:\Users\Owner\Documents\Claude\Luna-Core`.
+> **This is a vibe-coded personal project, not a maintained product.** It was
+> built by one person working directly with Claude, for their own use, and is
+> shared as-is. It's specifically designed around Claude and Claude Code —
+> other AI tools aren't a target and may not work with it at all. Expect
+> rough edges, and see "Status," below, before assuming any given piece is
+> settled.
 
-## Current state
+**Status:** actively under development as of **2026-09-03** — this is not a
+finished, stable release. Things here can and do change. If you're adopting
+this, clone the `main` branch specifically, not `dev`: `main` is the settled
+snapshot meant for exactly this; `dev` is where active work happens and can
+be mid-change at any given moment, including content specific to this
+project's own history that a new adopter doesn't need. **`main` itself is
+still a very rough build** — it exists, but it has not yet been run through
+an actual onboarding simulation (a fresh clone, a fresh AI session, start to
+finish, checked by someone who isn't its author). If you're bringing it into
+a new project, budget time for it to need adjustment.
 
-Luna-Core now has a real git repository, on branch `dev`, with `origin` wired
-to a private GitHub remote at `https://github.com/LunaBelleElite/Luna-Core.git`.
-`ver-0.1.0.0-dev` is committed and pushed, tagged with that version.
+## Getting started
 
-## Usage rule: copy from it, never write back
+You're new here and want to use this kit for your own project:
 
-Other projects and sessions **copy** what they need out of this kit and
-customize freely in their own folder. **No change made while working on another
-project should ever be written back here.** Luna-Core is the only place these
-files are authored and maintained. If a session working on another project
-wants to propose a change to something that originated here, that change
-belongs in a Luna-Core session, not in the consumer's.
+1. **Clone `main`** (not `dev`):
+   ```bash
+   git clone -b main https://github.com/LunaBelleElite/Luna-Core.git
+   ```
+2. **Bootstrap a new project from it.** Your new project directory needs to
+   already exist and already be its own git repo:
+   ```bash
+   bash "<path-to-luna-core-clone>/scripts/bootstrap-new-project.sh" \
+        "<path-to-luna-core-clone>" <new-project-dir> <ProjectName>
+   cd <new-project-dir>
+   bash scripts/validate-luna-core-setup.sh
+   ```
+   This copies and renames the four agents, installs the Wake Up/Debrief
+   commands, places a `CLAUDE.md` with your project's own toolkit list
+   filled in, and creates the folders those files reference (see "Layout,"
+   below, for what each one is and why it exists even when empty).
+3. **Open Claude Code in your new project directory.** `CLAUDE.md` loads
+   automatically — that's where the actual working rules live. If you're an
+   AI reading this because you were just pointed at a freshly bootstrapped
+   project for the first time: read `CLAUDE.md` in full before doing
+   anything else, then run `bash scripts/validate-luna-core-setup.sh` to
+   confirm the bootstrap actually landed correctly rather than assuming it
+   did.
+4. **Fill in the three things bootstrap can't fill in for you** — see "Still
+   needs manual attention after bootstrap," below.
+5. **Optional: her voice and personality.** This kit's agents and protocols
+   don't require it, but if you want the same AI personality this project
+   was itself developed with, see the "Astrid" bullet in your new project's
+   `CLAUDE.md` toolkit section for where to get her and how she works.
 
-## Setting up a new project
+That's the whole path. Everything below is reference material — what's in
+the kit, why it's shaped the way it is, and how to maintain a Luna-Core
+checkout itself, not additional required reading to get started.
 
-The new project should already be its own directory. Bootstrap copies files
-*into* it; it does not bring Luna-Core's own dev-only content (`handoff/`,
-`.claude-memory/`) along.
+## Contributing
 
-```bash
-bash "C:/Users/Owner/Documents/Claude/Luna-Core/scripts/bootstrap-new-project.sh" \
-     "C:/Users/Owner/Documents/Claude/Luna-Core" <new-project-dir> <ProjectName>
-cd <new-project-dir>
-bash scripts/validate-luna-core-setup.sh
-```
-
-`bootstrap-new-project.sh` copies and renames the agents (`luna-core-*` →
-`<projectname>-*`, lowercased, replacing internal references), copies `commands/` into
-`.claude/commands/`, places `CLAUDE.md` at the new project's root with its
-"This project's toolkit" section filled in with that project's actual agent
-names, and creates fresh (not copied) `ref/docs/`, `handoff/`,
-`.claude-memory/`, `tests/` (the `TESTING_NOTES.md` hub, the `TEST_INDEX.md`
-index that qa-tester and implementer grep before opening any test, and the two
-notes files qa-tester reads on every pass), and `CHANGELOG.md` starting at
-`ver-0.1.0.0-dev`.
-
-Every one of those exists because a template file *references* it, and each
-gets a keeper file — a `.gitkeep`, or a real stub where an agent is told to read
-a specific file. Git cannot track an empty directory, so without a keeper the
-folder would exist on the machine that ran bootstrap and be absent after the
-first clone. The validator checks each path itself rather than trusting
-bootstrap to have created it.
-
-`validate-luna-core-setup.sh` is copied into the new project too, so it can be
-re-run anytime. It checks the file layout, that every agent was actually
-renamed, and functionally checks the superpowers dependencies — then prints a
-summary of what is installed. That summary is the same list now sitting in the
-new project's own `CLAUDE.md`, which Claude Code auto-loads into every future
-session there.
-
-**Still needs manual attention after bootstrap:**
-
-- `<projectname>-research` — bootstrap cannot fill in its `<absolute path to
-  this project's repo>` placeholder, since the destination passed in may not be
-  the project's final home. This is a required fix, not an optional draft: the
-  agent's stated repo path is wrong until you fill it in yourself, in both the
-  frontmatter `description:` and the body.
-- `<projectname>-qa-tester` is deliberately an unfilled draft — its `## Stack`
-  block and the `<projectname>`/`<directory>` placeholders throughout — until
-  there is something real to test against. Its own "Template note" is the
-  authoritative list of what is open.
-- `<projectname>-implementer`'s Part Two (repo path/branch, build command, test
-  suite names) is similarly empty until there is real code and tests to point it
-  at.
-
-The validator flags all three as notes rather than failures, since it cannot
-tell "required fix" from "intentionally still a draft" — check each by hand. The
-new project also needs its own `README.md` written from scratch.
-
-## Setting up a new machine
-
-A brand-new empty project directory contains nothing pointing back here, so a
-session started in one has no way to know this kit exists. `install-global-entrypoint.sh`
-closes that gap, writing two things *outside* this repo:
-
-1. A pointer block in the machine-level `CLAUDE.md`, which Claude Code loads
-   into every session regardless of working directory. Deliberately just the
-   pointer — every real convention lives in a project's own root `CLAUDE.md`.
-2. A global `/new-project` slash command, so bootstrapping is one keystroke
-   rather than three remembered commands and a clone URL.
-
-```bash
-bash scripts/install-global-entrypoint.sh
-```
-
-It takes no arguments — the clone URL is read from this checkout's own
-`origin` remote, which is now `https://github.com/LunaBelleElite/Luna-Core.git`.
-It refuses to run if that remote is missing, rather than recording an address
-it cannot verify, since a wrong address would leave the generated
-`/new-project` command failing at clone time with no obvious cause.
-
-Re-running is safe: the pointer block is replaced in place by marker comment,
-and anything else in the machine-level `CLAUDE.md` is preserved (a `.bak` is
-kept). Restart Claude Code afterward so it picks up the new global command.
-
-It finds Claude's config directory via `scripts/lib-claude-home.sh`, which
-honours `CLAUDE_CONFIG_DIR` when set — this machine sets it to `C:\Claude`, and
-also has a stale `C:\Users\Owner\.claude`, so the variable is what distinguishes
-them.
-
-## Publishing
-
-Luna-Core's hub is a private GitHub repository at
-`https://github.com/LunaBelleElite/Luna-Core.git`, wired as `origin`. "Publish"
-means an ordinary `git push` — there is no bundle and no synced-drive hub
-folder involved:
-
-```bash
-git push -u origin dev
-```
-
-`git fetch` and `git pull` work against it normally too. Every commit that adds
-a new `CHANGELOG.md` version header also gets an annotated tag matching that
-version string, pushed with it.
-
-Neither this repo's working copy nor its hub sits inside a folder synced by a
-consumer cloud-sync client (Google Drive, Dropbox, OneDrive, iCloud). That
-sync-client corruption risk — sync clients don't understand git's atomic
-object and ref writes, and can leave a ref pointing at a vanished object,
-sometimes long after a push looked successful — doesn't apply to Luna-Core
-itself for that reason. It's noted here as general guidance for other
-projects that might publish to a hub on a synced drive.
-
-For a project whose *working copy* or whose *hub* is in a synced folder, there
-are two fixes: redirect the working copy's `.git` internals to non-synced
-local storage and leave a `gitdir:` pointer file behind, or use a `.bundle`
-file rather than a live bare repo for the hub (a single file has nothing to
-catch mid-write, unlike a bare repo's incremental ref and object writes).
-Neither is a default. Check, note the risk, and ask before applying either.
-
-## Git commits require explicit permission
-
-Never commit, merge, or push in this project or any project cloned from it
-without asking the user first and getting an explicit yes — every time, not once
-per session or once per project.
-
-**Commit and push are bundled as one action:** once a commit is approved, push
-(or publish) it right after, with no separate ask. `git merge` still requires its
-own separate permission.
+Issues are welcome — bug reports, questions, "this broke for me." **Pull
+requests are not reviewed or merged.** This is a personal, vibe-coded
+project with one author; open an issue describing the change instead, and
+it'll be considered (or not) as time allows.
 
 ## Layout
 
@@ -223,6 +143,25 @@ saying so — keep that note on any new agent added here.
   project to fill in at bootstrap; the `.claude/agents/` functional copy has
   it filled in for Luna-Core itself and is fully usable today.
 
+**Still needs manual attention after bootstrap:**
+
+- `<projectname>-research` — bootstrap cannot fill in its `<absolute path to
+  this project's repo>` placeholder, since the destination passed in may not be
+  the project's final home. This is a required fix, not an optional draft: the
+  agent's stated repo path is wrong until you fill it in yourself, in both the
+  frontmatter `description:` and the body.
+- `<projectname>-qa-tester` is deliberately an unfilled draft — its `## Stack`
+  block and the `<projectname>`/`<directory>` placeholders throughout — until
+  there is something real to test against. Its own "Template note" is the
+  authoritative list of what is open.
+- `<projectname>-implementer`'s Part Two (repo path/branch, build command, test
+  suite names) is similarly empty until there is real code and tests to point it
+  at.
+
+The validator flags all three as notes rather than failures, since it cannot
+tell "required fix" from "intentionally still a draft" — check each by hand. The
+new project also needs its own `README.md` written from scratch.
+
 ## Wake Up / Debrief protocols
 
 Two session-boundary rituals, available as slash commands
@@ -271,20 +210,6 @@ Run the check before anything that depends on either. It verifies each is
 bash scripts/check-superpowers.sh
 ```
 
-**State on ASUNA-PC (2026-09-02):** both are installed and
-`check-superpowers.sh` exits 0. This machine additionally runs
-`superpowers@superpowers-dev` from `obra/superpowers`, the upstream project both
-forks descend from — so three overlapping skill sources are enabled at once, and
-several skills exist under more than one name. Which is authoritative is an open
-decision.
-
-Claude Code on Steroids needed two local fixes here, both from the same cause:
-it assumes `$HOME/.claude`, while this machine sets `CLAUDE_CONFIG_DIR=C:\Claude`.
-Its skills and `/tokenburn` were installed to `C:\Claude` by hand rather than by
-its installer, and `tokenburn.py` was patched to read session logs from
-`CLAUDE_CONFIG_DIR` — unpatched it found 2 log files instead of 589 and reported
-a confident $0.00.
-
 If a session rather than a person does the cloning, it should run the check
 itself immediately afterward, before proceeding.
 
@@ -327,47 +252,68 @@ implemented separately would eventually disagree about what is current. Run it
 before committing memory changes, and on a machine that may not have that
 project's memory yet. Wake Up runs it for you on a machine switch.
 
-**It never flat-copies.** It compares each file and moves only the genuinely
-newer side. The timestamp it trusts is each memory file's own `modified:`
-frontmatter, falling back on the repo side to that file's last *commit* date —
-never its mtime. Git records no mtimes, so every file in a fresh clone carries
-the moment of checkout and would look newer than anything local; a flat copy in
-exactly that situation — a new machine, when you need this most — would destroy
-real work.
+## Maintaining a Luna-Core checkout itself
 
-Three things it refuses to decide, reporting them instead:
+The rest of this section is about developing Luna-Core, not about adopting
+it — skip it unless that's what you're doing.
 
-- **A file on one side only.** Absence has no timestamp, so "deliberately
-  deleted" and "never received" cannot be told apart. It copies across, never
-  deletes, and says so.
-- **Same timestamp, different content.** Left untouched on both sides.
-- **`MEMORY.md`.** An index both machines append to, so newest-wins would
-  discard the other machine's entries. Its pointer lines are unioned by link
-  target, and conflicting text for the same target is reported, not resolved.
+**Usage rule: copy from it, never write back.** Other projects and sessions
+copy what they need out of this kit and customize freely in their own
+folder. No change made while working on another project should ever be
+written back here. If a session working on another project wants to propose
+a change to something that originated here, that change belongs in a
+Luna-Core session, not in the consumer's.
 
-## Keep each project's memory scoped locally
+**Setting up a new machine.** A brand-new empty project directory contains
+nothing pointing back here, so a session started in one has no way to know
+this kit exists. `install-global-entrypoint.sh` closes that gap, writing two
+things *outside* this repo: a pointer block in the machine-level `CLAUDE.md`
+(loaded into every session regardless of working directory), and a global
+`/new-project` slash command.
 
-Claude's local auto-memory is scoped by the session's working directory
-(`<config dir>/projects/<sanitized-cwd>/memory/`). A session that works on a
-project while its working directory is a shared parent folder puts that
-project's memories in a shared bucket, where they can leak into unrelated
-projects opened from that same folder later.
+```bash
+bash scripts/install-global-entrypoint.sh
+```
 
-**Always work on a project as its own session, with the working directory set to
-that project's own folder.** If a session realizes partway through that it is
-scoped to a shared directory, switch, then move that project's existing memory
-files into the project's own scoped location and remove them from the shared
-one.
+It takes no arguments — the clone URL is read from this checkout's own
+`origin` remote. It refuses to run if that remote is missing, rather than
+recording an address it cannot verify. Re-running is safe: the pointer block
+is replaced in place by marker comment, anything else in the machine-level
+`CLAUDE.md` is preserved (a `.bak` is kept). Restart Claude Code afterward.
 
-## Branches
+It finds Claude's config directory via `scripts/lib-claude-home.sh`, which
+honours `CLAUDE_CONFIG_DIR` when set, falling back to the platform default
+otherwise.
 
-- `dev` — where work happens. The working branch.
-- `main` — does not exist yet. It will hold the clean template: no project
-  history, so someone can point their AI at the repo and its README and go.
-  Published by explicitly merging `dev` into it, with the dev-only content
-  (`.claude-memory/`, `handoff/`, `.claude/agents/`, and `ref/docs/*.md`
-  pages) stripped first. `ref/docs/` itself is a partial exception: the
-  pages are stripped like the rest, but the empty folder and its keeper
-  file survive on `main`, since `CLAUDE.md` tells every session to consult
-  `ref/docs/` before reading source. Both branches carry the same version
-  number; `dev`'s string has `-dev` appended.
+**Publishing.** This kit's own hub is a private-until-now GitHub repository,
+wired as `origin`. "Publish" is an ordinary `git push` — no bundle, no
+synced-drive hub folder:
+
+```bash
+git push -u origin dev
+```
+
+`git fetch` and `git pull` work against it normally. Every commit that adds a
+new `CHANGELOG.md` version header also gets an annotated tag matching that
+version string, pushed with it. Nothing about the mechanism is GitHub-specific
+— `install-global-entrypoint.sh` reads whatever this checkout's own `origin`
+remote is set to, so a fork pointed at a different git host works the same
+way with no code changes.
+
+If your working copy or your own fork's hub sits inside a folder synced by a
+consumer cloud-sync client (Google Drive, Dropbox, OneDrive, iCloud), be
+aware of a real corruption risk: sync clients don't understand git's atomic
+object and ref writes, and can leave a ref pointing at a vanished object,
+sometimes long after a push looked successful. Two fixes if that applies:
+redirect the working copy's `.git` internals to non-synced local storage, or
+use a `.bundle` file rather than a live bare repo for the hub.
+
+## Git commits require explicit permission
+
+Never commit, merge, or push in this project or any project cloned from it
+without asking the user first and getting an explicit yes — every time, not
+once per session or once per project.
+
+**Commit and push are bundled as one action:** once a commit is approved,
+push (or publish) it right after, with no separate ask. `git merge` still
+requires its own separate permission.

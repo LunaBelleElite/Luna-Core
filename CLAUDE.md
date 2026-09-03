@@ -4,6 +4,30 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
+## If this is your first look at this project
+
+Claude Code loads this file automatically, so a session that has never seen this project before still arrives holding these rules — but holding the rules is not the same as knowing where you are. Do the three steps below once, at the start of any session with no established context on this project, before proposing or changing anything.
+
+Do them unprompted. The Wake Up protocol described near the bottom of this file is the fuller version of this, but it fires on phrases like "wake up" — and someone who has never used this toolkit has no reason to say them, so waiting to be asked means never being asked.
+
+**1. Work out which of two things you are looking at.** Use the same tell `scripts/validate-luna-core-setup.sh` uses for its own `IS_LUNA_CORE` branch — don't invent a second, divergent test:
+
+- `agents/` **and** `scripts/bootstrap-new-project.sh` both present → this is a checkout of **Luna-Core itself**, the starter kit other projects are built from. Bootstrap copies neither of those into a project, so the pair together is a reliable tell.
+- Otherwise → this is **a project bootstrapped from Luna-Core**. The toolkit section directly below describes that project's own agents, commands and version, not Luna-Core's.
+
+**2. Confirm the setup rather than assuming it.**
+
+```bash
+bash scripts/validate-luna-core-setup.sh
+```
+
+A clean exit means the paths this file sends you to actually exist. A `MISSING:` line means an instruction you are about to follow points at nothing, which is a setup problem to resolve first, not a thing to work around. `NOTE:` lines are informational and do not fail the run.
+
+**3. Then orient on which case you are in.**
+
+- **Luna-Core itself** → read `README.md`'s "Getting started" section before suggesting anything. Most people who open a Luna-Core checkout want to bootstrap a *new* project from it, not develop the kit itself; that section is the path, and the two jobs want completely different first moves. Say which one you think is happening and confirm it rather than guessing.
+- **A bootstrapped project** → if there is prior work to pick up, offer the Wake Up protocol rather than reading around at random; it exists to do exactly this properly.
+
 ## This project's toolkit
 
 Filled in by `scripts/bootstrap-new-project.sh` when this project was set up from Luna-Core. Keep it current the same as anything else in this file — if an agent gets added/removed/renamed, or a dependency changes, update this section too.
@@ -12,7 +36,7 @@ Filled in by `scripts/bootstrap-new-project.sh` when this project was set up fro
 - **Commands:** `/wake-up`, `/debrief` (see `commands/`, copied into `.claude/commands/`)
 - **Dependencies:** superpowers-extended-cc, Claude Code on Steroids (see README's "Dependency: superpowers plugins")
 - **Personality & voice:** Astrid — maintained separately at https://github.com/LunaBelleElite/Astrid, kept as a sibling clone (e.g. `../Astrid` next to this project) rather than bundled into this repo, so she can be adopted, updated, and versioned independently of any one project's toolkit. Read `PERSONALITY.md` and `VOICE.md` there — not copied here, and not duplicated in this file. Always the `dev` branch, deliberately: her repo has no `main` (retired — `dev` was always kept current, so a second branch just to lag behind it added merge overhead with no real benefit), and `dev` is already that repo's default branch, so a plain clone gets it without a flag. `git -C ../Astrid pull` picks up anything new.
-- **Versioning:** currently `ver-0.1.2.2-dev` (see "Versioning scheme" below and `CHANGELOG.md` for the full history)
+- **Versioning:** currently `ver-0.1.3.0-dev` (see "Versioning scheme" below and `CHANGELOG.md` for the full history)
 
 (This is Luna-Core's own toolkit, listed here since this file is also Luna-Core's own live `CLAUDE.md`. For a new project set up from Luna-Core, `bootstrap-new-project.sh` replaces this list with that project's actual agent names and starting version.)
 
