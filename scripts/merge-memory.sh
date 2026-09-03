@@ -157,7 +157,15 @@ merge_index() {
   while IFS= read -r line; do
     case "$line" in
       '- ['*'('*')'*)
-        target="$(printf '%s' "$line" | sed -n 's/.*(\([^)]*\)).*/\1/p')"
+        # Anchored deliberately. `.*(` is greedy, so it matches the LAST `(` on
+        # the line -- a description ending "... (personal)" keys the entry on
+        # `personal` instead of the link target. That misfires twice: the same
+        # file keyed differently on each side gets appended as a duplicate, and
+        # two different files whose descriptions end with the same parenthetical
+        # collapse into one, so the second is never merged and is then erased
+        # from the side that had it when the union is written back to both.
+        # Anchor at line start, skip the bracketed label, take the FIRST group.
+        target="$(printf '%s' "$line" | sed -n 's/^- \[[^]]*\](\([^)]*\)).*/\1/p')"
         [ -z "$target" ] && continue
         # Note the `--`: these patterns start with "- [", which grep would
         # otherwise parse as options.
