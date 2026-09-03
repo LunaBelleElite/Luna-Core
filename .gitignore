@@ -1,0 +1,17 @@
+# Claude Code local, per-machine settings — not meant to be shared/committed
+.claude/settings.local.json
+
+# .claude/agents/ and .claude/commands/ ARE tracked -- they're the actual
+# functional location Claude Code looks for custom subagents/slash
+# commands (a bare agents/ or commands/ folder is documentation only,
+# invisible to the harness). Only the per-machine settings file above is
+# excluded.
+
+# Your project's own build artefacts go here.
+#
+# This template is deliberately language-agnostic, so it does NOT guess at a
+# stack -- picking __pycache__/ over node_modules/, bin/, obj/ or target/ would
+# be arbitrary. But that means a new project's first test run leaves untracked
+# junk to clean by hand before its first commit, which two separate testers hit
+# independently. Add your stack's entries below on day one and it never comes up
+# again.
