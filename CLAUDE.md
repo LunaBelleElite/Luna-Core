@@ -11,7 +11,7 @@ Filled in by `scripts/bootstrap-new-project.sh` when this project was set up fro
 - **Agents:** `luna-core-docs-writer`, `luna-core-research`, `luna-core-qa-tester`, `luna-core-implementer` (functional copies in `.claude/agents/` — that's where Claude Code actually looks to invoke them by name; `agents/` is Luna-Core's own template source, not a working location)
 - **Commands:** `/wake-up`, `/debrief` (see `commands/`, copied into `.claude/commands/`)
 - **Dependencies:** superpowers-extended-cc, Claude Code on Steroids (see README's "Dependency: superpowers plugins")
-- **Versioning:** currently `ver-0.1.0.0-dev` (see "Versioning scheme" below and `CHANGELOG.md` for the full history)
+- **Versioning:** currently `ver-0.1.1.0-dev` (see "Versioning scheme" below and `CHANGELOG.md` for the full history)
 
 (This is Luna-Core's own toolkit, listed here since this file is also Luna-Core's own live `CLAUDE.md`. For a new project set up from Luna-Core, `bootstrap-new-project.sh` replaces this list with that project's actual agent names and starting version.)
 
@@ -69,6 +69,21 @@ For multi-step tasks, state a brief plan:
 3. [Step] → verify: [check]
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+## 5. Verify Interfaces Before Testing
+
+**Before writing any test that references an external API, library method, or internal function, confirm it exists.**
+
+A test written against an invented interface is worse than no test at all. It creates false confidence (the test "passes" because it exercises a phantom), pushes discovery of the real interface from planning time to implementation time, and leaves a broken test in the suite that misleads whoever reads it next.
+
+Confirm the interface exists by reading the source or the type definitions — the equivalent for this project's stack of checking a package's shipped types or grepping for the export. If you cannot find it, stop and verify the correct interface before writing the test; do not guess.
+
+| Pattern | Problem |
+|---|---|
+| Importing/calling a method without checking its types or signature | Invented import |
+| Asserting on a return value's shape without checking what it actually returns | Invented shape |
+| Using a function signature from memory | May be wrong or outdated |
+| "the implementer will wire it up" | Test is untethered from any real interface |
 
 ---
 
@@ -181,6 +196,10 @@ This rule runs both ways. Once the hard reasoning is done and what's left is mec
 ### This applies in three places
 
 1. **Dispatching agents/subagents.** Set each agent's model to whichever one fits that agent's task, subject to the tier rule — don't default every dispatch to the same model out of habit. Note that **a subagent can run a different model than the session dispatching it.** So when the hard piece is separable, the usual answer is to hand it to a subagent running the better-suited model, not to stop the session (see point 3). Don't pin a `model:` in an agent definition's frontmatter — that hardcodes one choice and defeats per-task selection; leave it unset so the dispatcher decides.
+
+   **Fable is excluded from this rule — manual-only, never dispatched by the assistant.** The user reserves Fable for projects they personally decide need it, and invokes it themselves. On a Max/Premium tier, "pick whichever model is best-suited" ranges over Opus and Sonnet only; never dispatch an agent on Fable. This is a hard constraint, not a preference to weigh against task fit.
+
+   **Name the agent and the model out loud at every dispatch**, in the message launching it — e.g. "dispatching `luna-core-implementer` on Opus for this" — so the user can audit the routing from outside without reading tool calls. This applies whether the choice was Opus or Sonnet; silence is only acceptable when there's nothing to dispatch (see point 3, inline work).
 2. **A subagent mid-task.** If partway through you find distinct follow-on work that would genuinely be better suited to a different model, stop and report it back rather than continuing on a mismatched model. When you do, **leave the work in a consistent state** — finish or fully revert whatever edit is in flight, never half-apply a change — and report precisely: what you completed, what's left, and why the other model fits it. The point is to save the dispatcher tokens, so a handback that forces them to redo your work has failed.
 3. **Inline work in the current session — "speaking up."** If the model already running fits, keep going and say nothing. If a different model would clearly be better and the work can't be handed to a subagent: **pause, say what's coming up and why it calls for a different model, and wait for the user to confirm they've switched** — a running session can't change its own model, so this has to be a real stop, not a note in passing. **If the user declines the switch, proceed on the current model without further comment** — don't re-raise it, and don't hedge every later answer with a reminder. Their call is made.
 

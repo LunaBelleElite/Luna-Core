@@ -6,13 +6,11 @@ and the scripts that install all of it into a new project.
 
 Lives at `C:\Users\Owner\Documents\Claude\Luna-Core`.
 
-## Current state: a repo, but nothing committed yet
+## Current state
 
 Luna-Core now has a real git repository, on branch `dev`, with `origin` wired
 to a private GitHub remote at `https://github.com/LunaBelleElite/Luna-Core.git`.
-**Nothing has been committed, tagged, or pushed yet** — the repo is empty.
-Everything below that depends on a commit existing is marked; everything else
-works today.
+`ver-0.1.0.0-dev` is committed and pushed, tagged with that version.
 
 ## Usage rule: copy from it, never write back
 
@@ -121,8 +119,9 @@ folder involved:
 git push -u origin dev
 ```
 
-`git fetch` and `git pull` work against it normally too. Nothing has been
-pushed yet — `dev` has no commits, so there is nothing to push.
+`git fetch` and `git pull` work against it normally too. Every commit that adds
+a new `CHANGELOG.md` version header also gets an annotated tag matching that
+version string, pushed with it.
 
 Neither this repo's working copy nor its hub sits inside a folder synced by a
 consumer cloud-sync client (Google Drive, Dropbox, OneDrive, iCloud). That

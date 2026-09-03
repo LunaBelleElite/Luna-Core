@@ -5,12 +5,12 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 7ae81e10-1d7d-4657-9c9e-e57c816aac04
-  modified: 2026-09-02T15:18:34.839Z
+  modified: 2026-09-03T04:35:00.000Z
 ---
 
 **The goal is token efficiency: reach a correct result for the fewest total tokens, without running out.** That's the objective model choice serves — not maximum capability, and not minimum cost per token.
 
-Check the user's Claude license tier first ([[user_license_tier]] — currently Business Standard, teams), then apply:
+Check the user's Claude license tier first ([[user_license_tier]] — currently Max 5x, personal), then apply:
 
 - **Max (personal) or Premium (teams):** pick whichever model is best-suited, task by task, switching as the work changes.
 - **Pro (personal) or Business Standard (teams):** default to Sonnet — but still speak up when something looks genuinely hard enough that a stronger model would likely cost fewer tokens overall. The user decides; don't make the call silently, and don't stay quiet about it either.
