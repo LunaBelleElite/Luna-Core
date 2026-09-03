@@ -13,15 +13,18 @@ it into a brand-new project in two commands.
 > settled.
 
 **Status:** actively under development as of **2026-09-03** — this is not a
-finished, stable release. Things here can and do change. If you're adopting
-this, clone the `main` branch specifically, not `dev`: `main` is the settled
-snapshot meant for exactly this; `dev` is where active work happens and can
-be mid-change at any given moment, including content specific to this
-project's own history that a new adopter doesn't need. **`main` itself is
-still a very rough build** — it exists, but it has not yet been run through
-an actual onboarding simulation (a fresh clone, a fresh AI session, start to
-finish, checked by someone who isn't its author). If you're bringing it into
-a new project, budget time for it to need adjustment.
+finished, stable release. Things here can and do change. This branch, `main`,
+is the settled snapshot meant for adopting; `dev` is where active work
+happens and can be mid-change at any given moment, including content
+specific to this project's own history that a new adopter doesn't need.
+
+> **Read this before you rely on it.** `main` being the settled snapshot
+> does not mean it has been proven. It has never been run through an actual
+> onboarding simulation — a fresh clone, a fresh AI session, followed start
+> to finish by someone who is not its author — so nothing here is verified
+> beyond the author's own machine. It is a very rough build. Treat every
+> instruction below as a first draft rather than a tested procedure, expect
+> rough edges, and budget time to adjust things as you go.
 
 ## Getting started
 
@@ -113,13 +116,16 @@ into a new project, rename the file and its `name:` field, and replace the
 saying so — keep that note on any new agent added here.
 
 - `luna-core-docs-writer` — owns `CLAUDE.md`, `README.md`, `CHANGELOG.md`,
-  `ref/docs/*.md`, `.claude/agents/*.md`, and the `.claude-memory/` and
-  `handoff/` working areas. Invoke it on demand for a docs pass, and always
-  before a commit to `dev` or a merge into `main` — it updates the right files
-  and enforces which files are allowed on which branch (in particular that
-  `.claude-memory/`, `handoff/`, `.claude/agents/*.md`, and `ref/docs/*.md`
-  pages never reach `main` — though `ref/docs/`'s folder and keeper file do,
-  empty, since it's a path `CLAUDE.md` tells every session to consult).
+  `ref/docs/*.md`, `.claude/agents/*.md`, and the `.claude-memory/`,
+  `handoff/`, and `tests/` working areas. Invoke it on demand for a docs
+  pass, and always before a commit to `dev` or a merge into `main` — it
+  updates the right files and enforces which *content* is allowed on which
+  branch. Not "these paths never reach `main`": every one of `ref/docs/`,
+  `.claude-memory/`, `handoff/`, `.claude/agents/*.md`, and `tests/`
+  survives on `main` — the *path*, since `CLAUDE.md` and the setup validator
+  both expect it to exist — carrying placeholder or template content instead
+  of this project's own real, accumulated, or machine-specific working
+  state, which stays on `dev`.
 - `luna-core-research` — a read-only research specialist for multi-round,
   open-ended investigation. Invoke it instead of researching in the main
   conversation, which permanently bloats history that gets re-read every later

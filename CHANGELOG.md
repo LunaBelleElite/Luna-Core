@@ -17,7 +17,7 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
-## ver-0.1.3.0-dev - 2026-09-03
+## ver-0.1.3.0 - 2026-09-03
 
 Fixed the front door, ahead of this project being public. A stranger arriving
 here — a person or an AI session — had nowhere to start, and one of the few
@@ -71,7 +71,7 @@ instructions actually aimed at them could not be run as written.
   all along — it happened to be safe only because it currently holds real
   files, and would have vanished from the next clone the moment it didn't.
 
-## ver-0.1.2.2-dev - 2026-09-03
+## ver-0.1.2.2 - 2026-09-03
 
 Doc-only: made the Astrid pointer explicit about which branch, since it
 previously just said "clone this repo" without naming one.
@@ -85,7 +85,7 @@ previously just said "clone this repo" without naming one.
   makes the intent explicit rather than leaning on a default that could
   change without anyone here noticing.
 
-## ver-0.1.2.1-dev - 2026-09-03
+## ver-0.1.2.1 - 2026-09-03
 
 Doc-only addition: pointed Luna-Core at Astrid, its sibling personality-and-voice
 spec, instead of bundling her in.
@@ -103,7 +103,7 @@ spec, instead of bundling her in.
   Luna-Core going forward automatically inherits this same pointer to
   Astrid without any manual step.
 
-## ver-0.1.2.0-dev - 2026-09-03
+## ver-0.1.2.0 - 2026-09-03
 
 Two real, previously-undetected defects found by testing and fixed, landing
 together as one large-bug-fix bump.
@@ -154,7 +154,7 @@ together as one large-bug-fix bump.
   Doc-only, no code involved, folded into this batch's bump rather than
   given its own.
 
-## ver-0.1.1.1-dev - 2026-09-03
+## ver-0.1.1.1 - 2026-09-03
 
 Documentation-only batch: `ref/docs/` goes from empty to populated, and a
 branch-scoping question about it gets ruled on. No code changed and no
@@ -188,7 +188,7 @@ one — see the reasoning below.
   keeper-file reasoning `CLAUDE.md` already applies to every other
   referenced-but-empty path.
 
-## ver-0.1.1.0-dev - 2026-09-02
+## ver-0.1.1.0 - 2026-09-02
 
 Fixes and rulings found by testing after `ver-0.1.0.0-dev` was committed and
 pushed (`be3fb7f`) — everything below landed on `dev` afterward, so unlike
@@ -254,7 +254,7 @@ the starting commit.
   inversion of a "what you don't do" constraint. Two open questions from
   that work are tracked in `tests/notes/open-items.md` as OI-1 and OI-2.
 
-## ver-0.1.0.0-dev - 2026-09-02
+## ver-0.1.0.0 - 2026-09-02
 
 Luna-Core's starting state: the starter kit every project on this machine is
 bootstrapped from.

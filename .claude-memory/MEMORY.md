@@ -1,7 +1,0 @@
-- [Luna-Core repo](project_luna_core_repo.md) — starter kit at Documents\Claude\Luna-Core that every new project is bootstrapped from; git repo on dev, origin wired to GitHub, published
-- [Explicit commit permission](feedback_explicit_commit_permission.md) — never git commit/merge/push without asking first, every time (generic rule, also in shared memory)
-- [Model selection guideline](feedback_model_selection.md) — goal is fewest total tokens to a correct result; tier-gated, and switching costs too, so don't split small jobs
-- [Handoff only at Debrief](feedback_handoff_only_at_debrief.md) — don't rewrite handoff/HANDOFF.md after every mid-session milestone; it's for session-end, not a running log
-- [User's license tier](user_license_tier.md) — Claude Max 5x (personal); dynamically pick best-suited model per task, never a standing default
-- [Claude Code skill stack setup](claude_code_skill_stack_setup.md) — how the skill sources install, the GadaaLabs installer bugs found, and what is actually installed on ASUNA-PC
-- [Fable is manual-only](feedback_fable_manual_only.md) — assistant routes only across Sonnet/Opus, never dispatches an agent on Fable, even on Max/Premium tiers; user invokes Fable themselves

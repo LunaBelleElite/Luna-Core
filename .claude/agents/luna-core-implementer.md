@@ -219,39 +219,34 @@ that a handoff would cost more than it saves, just finish it yourself.
 
 ---
 
-# PART TWO — THIS PROJECT'S SPECIFICS
+# PART TWO — THIS PROJECT'S SPECIFICS (fill in when first used on real code)
 
 ## The repo and the commands
 
-- The repo lives at `C:\Users\Owner\Documents\Claude\Luna-Core`, branch `dev`,
-  with `origin` on a private GitHub remote.
-- Build command: none. This project is Bash scripts and Markdown; nothing
-  compiles.
-- Test suite(s), **always reported separately and never summed** — single
-  suite, and it is not a test framework (see `luna-core-qa-tester`'s `## Stack`
-  block, which this must match):
-  - `bash scripts/validate-luna-core-setup.sh` — the pass/fail gate. Its exit
-    code is the signal; `NOTE:` lines are informational and do not fail it.
-  - A **bootstrap round-trip**, reported separately: `git init -b dev` a
-    throwaway under the system temp dir, `bash scripts/bootstrap-new-project.sh
-    <this repo> <throwaway> TestProj`, then the validator inside the result.
-  - `bash -n <script>` on every shell script you touch, before running it.
-- Hard constraints: no network access in any check; never write anywhere
-  outside this repo except a throwaway directory under the system temp dir,
-  which is deleted afterward.
+- The repo lives at `<absolute path>` (branch `dev`).
+- Build command: `<e.g. dotnet build, npm run build>` — state the expected
+  warning count (usually 0) explicitly.
+- Test suite(s), **always reported separately and never summed** (or write
+  "single suite" if there's only one — see `<projectname>-qa-tester`'s own
+  `## Stack` block, which should match this):
+  - `<suite 1 name/command>`
+  - `<suite 2 name/command, if any>`
+- Any hard constraints (e.g. "no network access in tests," "only one project
+  may reference X"): `<fill in, or delete this line if none>`
 
-## Shared testing infrastructure (with `luna-core-qa-tester`)
+## Shared testing infrastructure (with `<projectname>-qa-tester`)
 
-This agent and `luna-core-qa-tester` read/write the same hub:
+This agent and `<projectname>-qa-tester` read/write the same hub:
 
 - Grep `tests/TEST_INDEX.md` before opening a test file, rather than hunting
-  the tree. There is no automated suite yet, so the index is maintained by
-  hand — add a row when you add a test rather than regenerating it.
+  the tree. Regenerate it in your own task if you add or rename a test —
+  `<fill in the actual regeneration command once one exists>`.
 - Read `tests/TESTING_NOTES.md` (the hub) and the `tests/notes/` files it
   indexes before writing a pin, so already-measured things are not measured
   again.
-- Follow whatever splitting rules `luna-core-qa-tester`'s own file establishes
-  for the hub/notes — don't duplicate that convention here, just follow it.
+- Follow whatever size caps and splitting rules `<projectname>-qa-tester`'s
+  own file establishes for the hub/notes — don't duplicate that convention
+  here, just follow it.
 
 ## The run ledger
 

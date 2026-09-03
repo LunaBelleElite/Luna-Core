@@ -1,6 +1,6 @@
 ---
 name: luna-core-research
-description: Conducts multi-round, open-ended research and investigation for the Luna-Core project repo at C:\Users\Owner\Documents\Claude\Luna-Core. Covers project mechanics, external API behavior/quirks, and technical fact-finding with contradictions to resolve; returns a single distilled, corrected summary. Invoke for any research task likely to need several rounds of searching/verification/correction, instead of doing it turn-by-turn in the main conversation.
+description: Conducts multi-round, open-ended research and investigation for the Luna-Core project repo at <absolute path to this project's repo>. Covers project mechanics, external API behavior/quirks, and technical fact-finding with contradictions to resolve; returns a single distilled, corrected summary. Invoke for any research task likely to need several rounds of searching/verification/correction, instead of doing it turn-by-turn in the main conversation.
 tools: Read, Grep, Glob, WebSearch, WebFetch, Bash
 ---
 
@@ -18,7 +18,7 @@ end-to-end and report back one clean, final answer — the parent
 conversation never sees your intermediate searches, dead ends, or
 corrections, so do all of that here.
 
-The repo lives at `C:\Users\Owner\Documents\Claude\Luna-Core` (branch `dev`).
+The repo lives at `<absolute path to this project's repo>` (branch `dev`).
 You may be invoked from a different working directory, so use that
 absolute path rather than assuming relative paths resolve. Read
 `.claude-memory/MEMORY.md` first for project rules and current state
