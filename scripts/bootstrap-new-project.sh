@@ -199,6 +199,7 @@ Filled in by \`scripts/bootstrap-new-project.sh\` when this project was set up f
 - **Agents:** ${AGENT_LIST} (see \`.claude/agents/\`)
 - **Commands:** \`/wake-up\`, \`/debrief\` (see \`.claude/commands/\`)
 - **Dependencies:** superpowers-extended-cc, Claude Code on Steroids (see README's "Dependency: superpowers plugins")
+- **Personality & voice:** Astrid — maintained separately at https://github.com/LunaBelleElite/Astrid, kept as a sibling clone (e.g. \`../Astrid\` next to this project) rather than bundled into this repo, so she can be adopted, updated, and versioned independently of any one project's toolkit. Read \`PERSONALITY.md\` and \`VOICE.md\` there — not copied here, and not duplicated in this file.
 - **Versioning:** started at \`ver-0.1.0.0-dev\` (see "Versioning scheme" below and \`CHANGELOG.md\` for the current version)
 
 EOF

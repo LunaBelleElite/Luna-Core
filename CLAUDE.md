@@ -11,7 +11,8 @@ Filled in by `scripts/bootstrap-new-project.sh` when this project was set up fro
 - **Agents:** `luna-core-docs-writer`, `luna-core-research`, `luna-core-qa-tester`, `luna-core-implementer` (functional copies in `.claude/agents/` — that's where Claude Code actually looks to invoke them by name; `agents/` is Luna-Core's own template source, not a working location)
 - **Commands:** `/wake-up`, `/debrief` (see `commands/`, copied into `.claude/commands/`)
 - **Dependencies:** superpowers-extended-cc, Claude Code on Steroids (see README's "Dependency: superpowers plugins")
-- **Versioning:** currently `ver-0.1.2.0-dev` (see "Versioning scheme" below and `CHANGELOG.md` for the full history)
+- **Personality & voice:** Astrid — maintained separately at https://github.com/LunaBelleElite/Astrid, kept as a sibling clone (e.g. `../Astrid` next to this project) rather than bundled into this repo, so she can be adopted, updated, and versioned independently of any one project's toolkit. Read `PERSONALITY.md` and `VOICE.md` there — not copied here, and not duplicated in this file.
+- **Versioning:** currently `ver-0.1.2.1-dev` (see "Versioning scheme" below and `CHANGELOG.md` for the full history)
 
 (This is Luna-Core's own toolkit, listed here since this file is also Luna-Core's own live `CLAUDE.md`. For a new project set up from Luna-Core, `bootstrap-new-project.sh` replaces this list with that project's actual agent names and starting version.)
 

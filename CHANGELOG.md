@@ -17,6 +17,24 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.1.2.1-dev - 2026-09-03
+
+Doc-only addition: pointed Luna-Core at Astrid, its sibling personality-and-voice
+spec, instead of bundling her in.
+
+- Astrid (https://github.com/LunaBelleElite/Astrid) is developed as its own
+  repo so she can be adopted, updated, and versioned independently of any
+  one project's toolkit, rather than merged into each project that uses
+  her. Luna-Core now references her by pointer instead of copy.
+- Added a "Personality & voice" bullet to Luna-Core's own `CLAUDE.md`
+  toolkit list, describing Astrid as a sibling clone (e.g. `../Astrid` next
+  to this project) and pointing to her `PERSONALITY.md` and `VOICE.md`
+  rather than duplicating their content here.
+- The same bullet was already added to `scripts/bootstrap-new-project.sh`'s
+  generated `CLAUDE.md` template, so every project bootstrapped from
+  Luna-Core going forward automatically inherits this same pointer to
+  Astrid without any manual step.
+
 ## ver-0.1.2.0-dev - 2026-09-03
 
 Two real, previously-undetected defects found by testing and fixed, landing
