@@ -167,7 +167,15 @@ while [ "$i" -lt "${#LABELS[@]}" ]; do
   i=$((i + 1))
 done
 
-if [ "$checked" -eq 0 ]; then
+# Keyed on what was DECLARED, not on what was successfully checked. The
+# bad-regex guard above sets status=1 and then `continue`s before `checked`
+# increments -- so when an unusable line was the only declaration, `checked`
+# stayed 0, this branch fired, and it printed "no prerequisites declared"
+# (false) and exited 0, silently discarding the failure detected one branch
+# earlier. Measured. The mask was conditional: a second, valid entry made
+# `checked` nonzero and the run then failed correctly, which is exactly the
+# kind of intermittence that hides a bug.
+if [ "${#LABELS[@]}" -eq 0 ]; then
   echo "OK: no runtime prerequisites declared for this project."
   exit 0
 fi

@@ -18,7 +18,7 @@ end-to-end and report back one clean, final answer — the parent
 conversation never sees your intermediate searches, dead ends, or
 corrections, so do all of that here.
 
-The repo lives at `C:\Users\Owner\Documents\Claude\Luna-Core`.
+The repo lives at `C:\Users\Owner\Documents\Claude\Luna-Core` (branch `dev`).
 You may be invoked from a different working directory, so use that
 absolute path rather than assuming relative paths resolve. Read
 `.claude-memory/MEMORY.md` first for project rules and current state

@@ -67,11 +67,15 @@ something. The closest thing to a refusal:
   absent config is not a failure, it means the project has declared no
   prerequisites.
 - **Exit code is nonzero only when something declared isn't satisfied** —
-  a command failed, or its output didn't match the expected regex. Per the
-  script's own header comment, this is informational: "callers should treat
-  this as informational ..., not as proof the project setup itself is
-  broken" — mirroring exactly how `validate-luna-core-setup.sh` treats
+  a command failed, its output didn't match the expected regex, or the
+  regex itself was malformed and couldn't be evaluated. Per the script's own
+  header comment, this is informational: "callers should treat this as
+  informational ..., not as proof the project setup itself is broken" —
+  mirroring exactly how `validate-luna-core-setup.sh` treats
   `check-superpowers.sh`'s exit code. See that script's page.
+- The malformed-regex case above was, until 2026-09-03, capable of being
+  silently discarded rather than exiting nonzero — see the next section.
+  That's fixed now; the exit code is trustworthy for this case as of the fix.
 
 ## Non-obvious behavior and traps
 
@@ -109,16 +113,41 @@ missing thing without telling the user how to get it" section — this
 script's `show_hint()` is one concrete place that rule is implemented in
 code rather than only in prose.
 
-**This code path has never actually been exercised against a real,
-non-empty config.** Luna-Core's own `ref/prerequisites.conf` declares
-nothing — it's documentation, shell scripts, and agent definitions, needing
-only git and bash, both implied by being able to run this check at all (per
-the file's own trailing comment). Every actual check-and-report branch in
-this script (pass 2's per-line logic, the regex validity guard, the hint
-lookup, the `OK`/`NOT FOUND`/`MISMATCH` output) is therefore live in the
-code but has not been run in anger on this project. Treat its behavior
-against a populated config as reasoned-through from the source, not as
-observed.
+**This code path has now been exercised against a real, non-empty config,
+and it found a real bug on first contact.** `ref/prerequisites.conf` went
+from an empty stub to declaring Git, GNU sed, and GNU find (git is a real
+external dependency; sed and find are declared specifically because
+`bootstrap-new-project.sh`, `install-global-entrypoint.sh`, and
+`merge-memory.sh` rely on GNU-specific flags — `sed -i` with no backup
+suffix, `find ... -printf` — that BSD sed/find don't provide). `awk`,
+`grep`, `mktemp`, `diff`, and `cmp` are also used unguarded elsewhere in
+this project's scripts but only in portable, POSIX-safe ways, so they stay
+undeclared on purpose — a false prerequisite is worse than a missing one.
+
+Six scenarios were run directly against the script (happy path, `MISMATCH`,
+`NOT FOUND`, bad regex, malformed line, orphan hint line). Five matched
+prediction exactly. The sixth — a config whose **only** declared entry has
+an invalid regex — surfaced a real defect: the regex-validity guard
+correctly set `status=1` and printed its `NOTE:`, but `continue`d before
+`checked` was incremented. The trailing block then read `[ "$checked" -eq 0
+]`, found it true (the bad-regex line was never counted), and printed `OK:
+no runtime prerequisites declared for this project.` followed by **exit
+0** — discarding the very failure it had just reported one branch earlier,
+and asserting something false (a check *was* declared; it just couldn't
+run). The mask was conditional, not universal: a second, valid entry
+alongside the bad one made `checked` nonzero, and the run correctly exited
+1 — so this bug only bit a conf whose bad-regex line was otherwise alone.
+
+**Fixed** by keying that trailing check on `${#LABELS[@]}` (everything
+actually parsed out of the conf in pass 1) instead of `$checked` (only what
+pass 2 finished checking without hitting a `continue`). `${#LABELS[@]}` is
+never wrong for "was anything declared," since it's set before either
+`continue` branch can skip it. Re-run after the fix: the same single-bad-
+regex conf now prints the `NOTE:` followed by "Some declared prerequisites
+need attention" and exits 1, and the two-line (bad regex + valid `Git`)
+case is unchanged. Full measurements and the sandbox recipe for re-proving
+this are in `tests/notes/live-checks.md`'s "`check-prerequisites.sh`, run
+for the first time against real declarations" section.
 
 ## Cross-references
 

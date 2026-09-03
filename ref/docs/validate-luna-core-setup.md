@@ -34,25 +34,27 @@ The script has three severities, and only two of them affect `overall_status`
   print several `NOTE:` lines describing real problems and still exit 0.
 
 This is deliberate in some places (see `deps_status` below) and a measured gap
-in others. Concretely, three separate checks in this script can only ever
-print `NOTE:`/print nothing useful and can never fail the run on their own:
+in others. Concretely:
 
 - The entry-point section (all four of its states — current, missing, stale
-  stamp, no block — are `NOTE:` lines).
-- The template-vs-functional drift check's *content*-drift branches (only its
-  *structural* branch — a template with no functional copy at all — sets
-  `overall_status`).
+  stamp, no block — are `NOTE:` lines) can only ever print `NOTE:` and can
+  never fail the run on its own.
 - (By the same logic, anything that degrades to a `NOTE:` anywhere else in the
   file.)
 
+**As of 2026-09-03 the template-vs-functional drift check's content-drift
+branches no longer belong on this list** — content drift now prints `DRIFT:`
+and sets `overall_status=1`, for both the three fill-in agents and
+`docs-writer`'s exact-match comparison. Only the entry-point section (and
+anything else that genuinely degrades to `NOTE:`) still can't fail the run.
+
 **Consequence: never assert on this script's exit code alone.** A machine
-with an absent or years-stale entry point passes green. A functional agent
-copy with an inverted constraint, a deleted section, or ten drifted lines
-passes green. Assert on the specific `MISSING:`/`EMPTY:`/`NOTE:` line you
-care about. This is documented and measured three times over in
-`tests/notes/live-checks.md` (the `EMPTY:` case, the entry-point case, and the
-drift-check case) — see that file for the exact fixture recipes and measured
-outputs, not reproduced here.
+with an absent or years-stale entry point passes green regardless of what
+else is wrong. Assert on the specific `MISSING:`/`EMPTY:`/`DRIFT:`/`NOTE:`
+line you care about. This is documented and measured in
+`tests/notes/live-checks.md` (the `EMPTY:` case and the entry-point case) —
+see that file for the exact fixture recipes and measured outputs, not
+reproduced here.
 
 There is also a **separate, deliberately-excluded status track**:
 `deps_status`, covering `scripts/check-prerequisites.sh` and
@@ -85,6 +87,10 @@ Everything under `check()` and `check_keeper()` below, plus:
 - No `## ver-...` header anywhere in `CHANGELOG.md`.
 - (Luna-Core-only) a template agent in `agents/` with no functional copy at
   all in `.claude/agents/` — the structural branch of the drift check.
+- (Luna-Core-only) `DRIFT:` — a template and its functional copy disagree
+  beyond the fill-in regions, or a fill-in region exists on only one side.
+  As of 2026-09-03 this fails the run for all four agents, not just the
+  structural case above. See "Template-vs-functional drift check" below.
 - (Any project) an agent file records an absolute repo path that resolves to
   a real directory on this machine but is **not** this checkout — a stale
   path left over from a machine switch.
@@ -184,15 +190,20 @@ agent is absent), and an agent present on disk that CLAUDE.md's toolkit list
 never mentions. A missing declared agent is `MISSING:` (fails the run); an
 undeclared-but-present agent is `NOTE:` only.
 
-**Known gap, not yet fixed** (found while probing the drift check, recorded
-in `tests/notes/live-checks.md`): this cross-check only catches an
-undeclared agent whose filename matches one of the four role suffixes
+**Fixed 2026-09-03** (found while probing the drift check, recorded in
+`tests/notes/live-checks.md`): this cross-check used to only catch an
+undeclared agent whose filename matched one of the four role suffixes
 (`*-docs-writer.md` etc., via `FOUND_AGENTS`, populated by the earlier loop).
 An agent file with no recognized role suffix at all — e.g.
-`.claude/agents/luna-core-orphan.md` — appears in **no** validator output
+`.claude/agents/luna-core-orphan.md` — appeared in **no** validator output
 whatsoever, not here and not in the drift check (whose loop is template-side,
-`agents/*.md`). The comment in the script claims this check "also catches the
-reverse," which is only true for role-suffixed files.
+`agents/*.md`). The comment in the script claimed this check "also catches
+the reverse," which was only true for role-suffixed files.
+
+The loop now iterates every `.claude/agents/*.md` file on disk (`for af in
+.claude/agents/*.md`) rather than only the names `FOUND_AGENTS` collected,
+so an orphan filename is now reported by name as an undeclared agent —
+matching what the script's comment always claimed it did.
 
 ## Template-vs-functional drift check (Luna-Core only)
 
@@ -203,39 +214,71 @@ other isn't — nothing else catches that. Runs only when `IS_LUNA_CORE=1`.
 Three agents legitimately carry project-specific content in their functional
 copy where the template stays blank: research's repo path, qa-tester's `##
 Stack` block, implementer's Part Two. `strip_fillins()` cuts those regions
-out of **both** sides before diffing (qa-tester: skip from `^## Stack$` to the
-next `^## ` heading; implementer: everything from `^# PART TWO` to EOF, via
-`exit`). `docs-writer` takes a plain `cmp -s` byte-exact comparison instead —
-no exempt regions, no filters.
+out of **both** sides before comparing (qa-tester: skip from `^## Stack$` to
+the next `^## ` heading; implementer: everything from `^# PART TWO` to EOF,
+via `exit`) — this part is unchanged from the original design. `docs-writer`
+still takes a plain `cmp -s` byte-exact comparison — no exempt regions, no
+substitutions.
 
-For the three fill-in agents, what survives `strip_fillins()` is then further
-filtered (`grep -v` chain) to drop expected fill-in tokens: the placeholder
-text itself, the project name/path substituted into it, and a few known
-opening-sentence patterns. **This filter chain is measured to be leaky — read
-`tests/notes/live-checks.md`'s "template-vs-functional drift check" section
-before trusting an `OK:` from this check on any of the three fill-in agents.**
-Highlights (all measured, not inferred):
+**As of 2026-09-03 the three fill-in agents are compared by normalising, not
+by filtering a diff.** The original design diffed the two sides and then
+`grep -v`'d the diff, dropping any differing line that merely *contained* an
+expected token (placeholder text, the project name/path, a few known opening
+sentences). That was measured leaky: ~18.5% of lines across the three
+fill-in agents were structurally blind to it (114 of 617), the exempt
+regions had no opinion about their own contents (deleting `## Stack` heading
+and all still reported `OK:`), and the broad `luna-core-`-token filter
+silently swallowed a **semantic inversion** — a "what you don't do"
+constraint rewritten into its opposite, on a line that happened to contain
+that token, reported clean.
 
-- **~18.5% of lines across the three fill-in agents are structurally blind**
-  (114 of 617 lines) — `docs-writer` is 0% blind since it takes no
-  exemptions.
-- The exempt regions have **no opinion about their contents at all** once cut
-  — replacing qa-tester's entire `## Stack` body, or deleting it heading and
-  all, both report `OK:` and exit 0.
-- The `grep -Fv "${LC_PROJ}-"` filter (dropping any differing line containing
-  `luna-core-`) silently swallows **semantic inversions**, not just
-  boilerplate — a "what you don't do" constraint rewritten into its opposite
-  on a line containing that token reports clean.
-- Content drift, when it *is* caught, only ever prints `NOTE:` — it can never
-  fail the run (see "exit code is not trustworthy alone" above).
-- `head -6` on the diff output silently truncates; ten drifted lines produce
-  twenty diff lines and only six print, with no "…more" indicator.
+The new design maps each fill-in and its filled-in counterpart onto one
+shared sentinel on **both** sides before comparing — `<projectname>` /
+`<ProjectName>` / the project's real name / its lowercased form all collapse
+to `@@PROJ@@`; `<directory>/<projectname>` / `<absolute path to this
+project's repo>` / `<directory>` / the repo's real path (both Windows- and
+POSIX-spelled, backslashes normalised to `/` first) all collapse to
+`@@REPO@@`. Every remaining difference after normalisation is real drift by
+construction — there is no allowlist left for an unrelated edit to hide
+behind. Two further changes landed with it:
 
-If you're extending this check, read the fixture recipe in
-`tests/notes/live-checks.md` first — it requires a `cp -r` fixture named
-exactly `Luna-Core` (not a bootstrapped one; bootstrap doesn't create
-`agents/` at all) with agent-recorded repo paths rewritten to the fixture's
-own location, or the baseline itself reports false drift.
+- **A fill-in region must now exist on both sides.** Before comparing, the
+  script counts `## Stack` and `# PART TWO` markers on the template and the
+  functional copy separately; a mismatch (one side missing the region
+  entirely) is reported as region drift even though `strip_fillins()` would
+  otherwise cut both sides down to nothing and see no difference. This is
+  what catches deleting the whole `## Stack` section, heading included —
+  the exact case the old design missed.
+- **Content drift now fails the run.** Both the fill-in-agent branch and
+  `docs-writer`'s `cmp -s` branch print `DRIFT:` (was `NOTE:`) and set
+  `overall_status=1` on a mismatch — see "exit code is not trustworthy
+  alone" above. `docs-writer`'s comparison mechanism itself (`cmp -s`) did
+  not change, only its severity did.
+
+`head -6` on the diff output still silently truncates — ten drifted lines
+still produce more output than six lines can show, with no "…more"
+indicator; check the source before assuming a short `DRIFT:` block is the
+whole story.
+
+**Measured after the rebuild** (fixture, one variable at a time): clean
+baseline exits 0 with 0 drift; the semantic-inversion case that used to slip
+through now exits 1; deleting the whole `## Stack` section now exits 1 with
+the region-drift message; an orphan agent file (see the roster cross-check
+above) is now reported by name. Mutation-tested: filtering the sentinel
+(`grep -Fv "@@PROJ@@-"`, the normalisation-era equivalent of the old filter)
+puts detection straight back to exit 0 / 0 drift; restoring it returns exit
+1 — so detection rests on the normalisation, not on luck. It also found a
+real, previously-masked divergence on its first run against the actual
+repo: the research agent's functional copy had lost its `(branch `dev`)`
+parenthetical. Full numbers, the fixture recipe (a `cp -r` copy named
+exactly `Luna-Core`, with agent-recorded repo paths rewritten to the
+fixture's own location in both spellings — a bootstrapped fixture can't
+exercise this check at all, since bootstrap creates neither `agents/` nor
+`bootstrap-new-project.sh`), and the traps hit while building it (an escaper
+that silently turned backslashes into empty matches, an unterminated `sed`
+substitution, a `replace(..., 1)` mutation that hit the wrong occurrence)
+are in `tests/notes/live-checks.md`'s "template-vs-functional drift check,
+rebuilt" section — read that before re-deriving any of it by hand.
 
 ## Agent repo paths (machine-switch staleness)
 

@@ -11,7 +11,7 @@ Filled in by `scripts/bootstrap-new-project.sh` when this project was set up fro
 - **Agents:** `luna-core-docs-writer`, `luna-core-research`, `luna-core-qa-tester`, `luna-core-implementer` (functional copies in `.claude/agents/` — that's where Claude Code actually looks to invoke them by name; `agents/` is Luna-Core's own template source, not a working location)
 - **Commands:** `/wake-up`, `/debrief` (see `commands/`, copied into `.claude/commands/`)
 - **Dependencies:** superpowers-extended-cc, Claude Code on Steroids (see README's "Dependency: superpowers plugins")
-- **Versioning:** currently `ver-0.1.1.1-dev` (see "Versioning scheme" below and `CHANGELOG.md` for the full history)
+- **Versioning:** currently `ver-0.1.2.0-dev` (see "Versioning scheme" below and `CHANGELOG.md` for the full history)
 
 (This is Luna-Core's own toolkit, listed here since this file is also Luna-Core's own live `CLAUDE.md`. For a new project set up from Luna-Core, `bootstrap-new-project.sh` replaces this list with that project's actual agent names and starting version.)
 
@@ -70,13 +70,15 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-## 5. Verify Interfaces Before Testing
+## 5. Verify Interfaces Before Planning or Testing
 
-**Before writing any test that references an external API, library method, or internal function, confirm it exists.**
+**Before a plan task depends on an external API, library method, or internal function — and before any test references one — confirm it exists.**
 
-A test written against an invented interface is worse than no test at all. It creates false confidence (the test "passes" because it exercises a phantom), pushes discovery of the real interface from planning time to implementation time, and leaves a broken test in the suite that misleads whoever reads it next.
+Catching a phantom interface while writing the plan costs a lookup. Catching the same one while writing the test costs a wasted task. Catching it only at execution time costs a stuck implementer and a rework cycle. It's the same check at every stage; only the price of skipping it changes — so run it at the earliest stage, while planning, not just before testing.
 
-Confirm the interface exists by reading the source or the type definitions — the equivalent for this project's stack of checking a package's shipped types or grepping for the export. If you cannot find it, stop and verify the correct interface before writing the test; do not guess.
+A test — or a plan task — written against an invented interface is worse than none at all. It creates false confidence (it "passes" review, or "passes" as a test, because it exercises a phantom), pushes discovery of the real interface later than it needed to happen, and leaves something broken in the plan or suite that misleads whoever reads it next.
+
+Confirm the interface exists by reading the source or the type definitions — the equivalent for this project's stack of checking a package's shipped types or grepping for the export. For a plan task, that means confirming the dependency is actually declared, the method name and import path are real, and an internal utility's file path, export, and signature all check out — none of it assumed from memory. If you cannot find it, stop and verify the correct interface before writing the task or the test; do not guess.
 
 | Pattern | Problem |
 |---|---|
@@ -84,6 +86,7 @@ Confirm the interface exists by reading the source or the type definitions — t
 | Asserting on a return value's shape without checking what it actually returns | Invented shape |
 | Using a function signature from memory | May be wrong or outdated |
 | "the implementer will wire it up" | Test is untethered from any real interface |
+| A plan task built on `library.method()` without checking it exists | Plan fails at execution, not at review |
 
 ---
 
@@ -179,6 +182,14 @@ If a memory file mirrors a repo file, update that mirror *before* merging, or th
 Claude's local auto-memory is scoped by the session's working directory (check what Claude's local directory is before just using this one and verify with the user) (`~/.claude/projects/<sanitized-cwd>/memory/`). If a session works on this project while its working directory is actually some shared parent folder (e.g. a folder that holds many projects), this project's memories land in that shared/universal bucket instead of a project-specific one — and can then leak into unrelated projects opened from that same shared folder later.
 
 To avoid this: always work on this project as its own session with the working directory set to this project's own folder, not a shared parent folder. If a session realizes partway through that it's scoped to the wrong (shared) directory, switch the working directory to this project's own folder, then move any of this project's existing memory files out of the shared location and into this project's own scoped location (and remove them from the shared one) so they don't linger in — or leak out from — the wrong scope.
+
+## Scan for plan conflicts before dispatching parallel agents
+
+Before dispatching two or more agents to work in parallel, write out every pair of tasks that share a file or an interface, and rule on each pair — sequence them, merge them into one dispatch, or confirm they're genuinely independent — before the first one starts. Two agents editing the same file, or one depending on an interface another is mid-changing, is a conflict to resolve up front, not something to discover from a mangled diff afterward.
+
+Make the scan a table, not a verdict: one row per pair of tasks that share a file or interface, naming what one produces against what the other consumes, and what you found. "The scan is clean" without that row-by-row record isn't a scan you actually ran. A clean scan needs no further comment; a conflict gets resolved — by sequencing the dependent pair, folding them into one dispatch, or narrowing each agent's brief to avoid the overlap — before task one goes out.
+
+Hand-written per-agent scope lists catch most of this by care, but care isn't a process — it misses things under load, and a brief that names a file another agent is mid-editing is exactly the failure this scan exists to catch before it happens. Run the scan explicitly every time you're about to dispatch agents in parallel, not just when something feels risky.
 
 ## Match model to license tier and task
 

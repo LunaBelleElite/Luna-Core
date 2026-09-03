@@ -17,6 +17,57 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.1.2.0-dev - 2026-09-03
+
+Two real, previously-undetected defects found by testing and fixed, landing
+together as one large-bug-fix bump.
+
+- **Fixed silent exit-0 masking in `check-prerequisites.sh`.** The trailing
+  "nothing declared" branch was keyed on `$checked` (only incremented for
+  lines that passed the regex-validity guard) instead of on everything
+  actually declared. A config whose *only* line had an invalid regex set
+  `status=1`, printed the correct `NOTE:` about the bad pattern, then hit
+  the "nothing declared" branch anyway — since that one line was never
+  counted as checked — printed `OK: no runtime prerequisites declared for
+  this project`, and exited 0, silently discarding the failure it had just
+  reported one branch earlier. The mask was conditional, not universal: a
+  second, valid entry alongside the bad one made the run fail correctly,
+  which is exactly the kind of intermittence that hides a bug. Fixed by
+  keying that branch on what was declared instead of what was successfully
+  checked. This was the first time this code path had ever run against a
+  real, non-empty config — see the next item for why.
+- **`ref/prerequisites.conf` now declares real prerequisites**: Git, GNU
+  sed, and GNU find, replacing the empty stub. Sed and find are declared
+  specifically because three of this project's own scripts rely on
+  GNU-specific flags (`sed -i` with no backup suffix, `find ... -printf`)
+  that a non-GNU sed/find doesn't provide. This is what let the bug above
+  actually be exercised for the first time, rather than reasoned through
+  from source alone.
+- **Rebuilt the template-vs-functional drift check** in
+  `validate-luna-core-setup.sh`. The old design diffed the two sides and
+  then filtered the diff, dropping any differing line that merely
+  *contained* an expected token — measured to be blind to 18.5% of lines
+  across the three fill-in agents, and capable of silently waving through
+  a semantic inversion of a behavioral constraint. The new design
+  normalises both sides onto shared sentinels before comparing, so every
+  remaining difference is real drift by construction, with no allowlist
+  left to leak through. Landed with it: a fill-in region (`## Stack`,
+  `# PART TWO`) must now exist on both sides, or deleting one wholesale no
+  longer reports clean; content drift now fails the run instead of only
+  ever printing an informational note; and the CLAUDE.md agent-roster
+  reverse-check now walks every agent file on disk instead of only
+  role-suffixed ones, so an orphan agent filename is no longer invisible
+  to the whole validator. The rebuilt check found one real drift on its
+  first live run: the research agent's functional copy had lost a
+  `(branch `dev`)` parenthetical, previously masked by the old filter.
+  Resolves the two open items this had been tracked under
+  (`tests/notes/open-items.md` OI-1 and OI-2).
+- **Extended `CLAUDE.md`'s interface-verification rule to plan tasks, not
+  just tests**, and added a new rule requiring a row-by-row conflict scan
+  before dispatching parallel agents rather than a verbal "looks clean."
+  Doc-only, no code involved, folded into this batch's bump rather than
+  given its own.
+
 ## ver-0.1.1.1-dev - 2026-09-03
 
 Documentation-only batch: `ref/docs/` goes from empty to populated, and a

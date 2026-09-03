@@ -187,10 +187,17 @@ if [ -f "CLAUDE.md" ]; then
         echo "         (either the file was lost, or CLAUDE.md's toolkit list is stale — fix whichever is wrong)"
       fi
     done
-    for base in "${FOUND_AGENTS[@]}"; do
+    # Iterate every agent file on disk, NOT just the role-suffixed ones the
+    # glob above matched. FOUND_AGENTS only ever holds files ending in a known
+    # role, so an agent whose filename carries none of them was invisible to
+    # this check -- and to the whole validator -- while the comment above
+    # claimed it catches an agent that nothing declares.
+    for af in .claude/agents/*.md; do
+      [ -f "$af" ] || continue
+      abase="$(basename "$af" .md)"
       case " $DECLARED " in
-        *" $base "*) : ;;
-        *) echo "NOTE: .claude/agents/$base.md exists but CLAUDE.md's toolkit list doesn't mention it — add it to that list" ;;
+        *" $abase "*) : ;;
+        *) echo "NOTE: .claude/agents/$abase.md exists but CLAUDE.md's toolkit list doesn't mention it — add it to that list" ;;
       esac
     done
   fi
@@ -241,34 +248,61 @@ if [ "$IS_LUNA_CORE" -eq 1 ] && [ -d "agents" ]; then
     fi
     case "$base" in
       *-research.md|*-qa-tester.md|*-implementer.md)
-      # Outside the cut-out regions, a differing line is acceptable only if it
-      # is one of the known scattered fill-ins -- a placeholder token on the
-      # template side, or this project's name/path on the functional side.
-      # Anything else is genuine drift.
+      # Compare by NORMALISING both sides, not by diffing and then filtering the
+      # diff. The old filter chain dropped any differing line merely
+      # *containing* an expected token, which silently accepted a semantic
+      # inversion of a behavioural constraint on a line that happened to name an
+      # agent -- measured blind rate, 18.5% of lines. Mapping each fill-in and
+      # its filled-in counterpart onto one sentinel instead makes every
+      # remaining difference real drift by construction, with no allowlist left
+      # to leak through.
       REPO_POSIX="$(pwd)"
       REPO_WIN="$(cygpath -w "$REPO_POSIX" 2>/dev/null || echo "$REPO_POSIX")"
-      # The identifier fill-in has two sides: the template says
-      # `<projectname>-docs-writer`, the functional copy says the real
-      # lowercase form. Filter both, or one half reads as drift forever.
-      LC_PROJ="$(basename "$REPO_POSIX" | tr '[:upper:]' '[:lower:]')"
-      extra="$(diff <(strip_fillins "$t") <(strip_fillins "$fc") | grep -E '^[<>]' \
-               | grep -v "absolute path to this project" \
-               | grep -v "<projectname>" \
-               | grep -v "<directory>" \
-               | grep -Fv "${LC_PROJ}-" \
-               | grep -Ev "^[<>] *(description:)? *(You are |Runs and designs tests for )" \
-               | grep -Ev "^[<>] *(The repo lives at|yet — branch|repository yet)" \
-               | grep -Fv "$REPO_WIN" \
-               | grep -Fv "$REPO_POSIX")"
-      if [ -n "$extra" ]; then
-        echo "NOTE: $base differs from its functional copy beyond the expected fill-in lines -- re-sync it:"
-        printf '%s\n' "$extra" | sed 's/^/        /' | head -6
+      REPO_FWD="$(printf '%s' "$REPO_WIN" | tr '\\' '/')"
+      PROJ="$(basename "$REPO_POSIX")"
+      LC_PROJ="$(printf '%s' "$PROJ" | tr '[:upper:]' '[:lower:]')"
+      # Both sides get every rule, so text that is genuinely identical stays
+      # identical and only substitution differences collapse.
+      #
+      # Backslashes are converted to forward slashes FIRST, on both sides. An
+      # earlier attempt interpolated the Windows path straight into a sed
+      # pattern behind an escaper -- and the escaper turned every backslash
+      # into "&", so the rule matched nothing and a *different*, weaker rule
+      # fired instead. The output looked plausible. Normalising the separator
+      # up front means no interpolated pattern ever contains a backslash.
+      normalise() {
+        sed -e 's|\\|/|g' "$1"          | sed -e "s|<directory>/<projectname>|@@REPO@@|g"                 -e "s|<absolute path to this project's repo>|@@REPO@@|g"                 -e "s|<directory>|@@REPO@@|g"                 -e "s|$REPO_FWD|@@REPO@@|g"                 -e "s|$REPO_POSIX|@@REPO@@|g"                 -e "s|<projectname>|@@PROJ@@|g"                 -e "s|<ProjectName>|@@PROJ@@|g"                 -e "s|$LC_PROJ|@@PROJ@@|g"                 -e "s|$PROJ|@@PROJ@@|g"
+      }
+      # A fill-in region must exist on BOTH sides. strip_fillins() cuts it from
+      # both, so deleting a whole `## Stack` section -- heading included --
+      # would otherwise leave the stripped sides identical and report OK: the
+      # exemption cannot see the loss of the very thing it exists to permit.
+      region_drift=""
+      for marker in '^## Stack$' '^# PART TWO'; do
+        ca="$(grep -c "$marker" "$t")"; cb="$(grep -c "$marker" "$fc")"
+        if [ "$ca" != "$cb" ]; then
+          m_disp="${marker#^}"; m_disp="${m_disp%\$}"
+          region_drift="${region_drift}        fill-in region '$m_disp' appears $ca time(s) in the template and $cb in the functional copy
+"
+        fi
+      done
+      extra="$(diff <(strip_fillins <(normalise "$t")) <(strip_fillins <(normalise "$fc")) | grep -E '^[<>]')"
+      if [ -n "$extra" ] || [ -n "$region_drift" ]; then
+        # Content drift FAILS the run. A missing functional copy already does,
+        # and divergent content is the same class of broken toolkit -- a NOTE
+        # that can never fail the run trains people to ignore it.
+        overall_status=1
+        echo "DRIFT: $base differs from its functional copy beyond its fill-ins -- re-sync it:"
+        [ -n "$region_drift" ] && printf '%s' "$region_drift"
+        [ -n "$extra" ] && printf '%s
+' "$extra" | sed 's/^/        /' | head -6
         drift=1
       fi
       ;;
       *)
       if ! cmp -s "$t" "$fc"; then
-        echo "NOTE: $base differs from its functional copy at $fc -- one was edited without the other; re-sync"
+        overall_status=1
+        echo "DRIFT: $base differs from its functional copy at $fc -- one was edited without the other; re-sync"
         drift=1
       fi
       ;;

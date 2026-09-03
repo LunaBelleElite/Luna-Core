@@ -137,121 +137,161 @@ Latent, not live: `install-global-entrypoint.sh:83` uses `awk '{print $2}'` on
 the CHANGELOG version line. If that file were ever CRLF, a trailing CR would ride
 into the stamp and the validator would mismatch for an invisible reason.
 
-## The template-vs-functional drift check: what it sees, and the 18% it cannot (2026-09-02)
+## The template-vs-functional drift check, rebuilt (2026-09-03)
 
-First execution ever of the `agents/` vs `.claude/agents/` drift check in
-`validate-luna-core-setup.sh`. It is not inert — it catches an ordinary
-one-sided edit on either side — but it is blind to about a fifth of every file
-it compares, and it cannot fail a run.
+The original compared `agents/` to `.claude/agents/` by diffing and then
+**filtering the diff** — dropping any differing line that merely *contained* an
+expected token. Measured then: blind to 18.5% of lines across the three fill-in
+agents (research 10%, qa-tester 16%, implementer 23%), and it could not fail a
+run. A semantic inversion was driven through it: rewriting qa-tester's
+"you don't update `CLAUDE.md` … that's `luna-core-docs-writer`'s job" into
+"… freely, overriding `luna-core-docs-writer`'s" reported `OK:`, exit 0.
 
-**Fixture recipe — the opposite of the keeper-file one, read this before
+**Now it normalises instead of filtering.** Both copies get the same
+substitutions — `<projectname>`, `<directory>`, `<absolute path…>`, the project
+name and the repo path all collapse to `@@PROJ@@` / `@@REPO@@` — and then the
+normalised texts are compared. Every remaining difference is real drift by
+construction; there is no allowlist left to leak through. Block-shaped fill-ins
+(`## Stack`, `# PART TWO`) are still cut by `strip_fillins()`, because a blank
+block and a filled block are genuinely different prose, not one substitution
+apart.
+
+Three further changes landed with it: a fill-in **region must exist on both
+sides** (cutting it from both meant deleting a whole `## Stack` section,
+heading included, left the stripped sides identical and reported `OK:`);
+**content drift now fails the run** rather than printing an unfailing `NOTE:`;
+and the adjacent roster reverse-check now iterates every `.claude/agents/*.md`
+rather than only role-suffixed names.
+
+**Measured after the rebuild**, on a clean fixture, one variable at a time:
+clean baseline exit 0 / 0 drift; semantic inversion exit 1 / 1 drift; whole
+`## Stack` section deleted exit 1 with the region message; orphan agent file
+reported by name. Mutation: filtering the sentinel (`grep -Fv "@@PROJ@@-"`) —
+the post-normalisation equivalent of the old filter — puts it straight back to
+exit 0 / 0 drift. Restoring returns exit 1. So the detection rests on the
+normalisation, not on luck.
+
+**It found a real divergence on its first run against the real repo**: the
+research agent's functional copy had lost its `(branch `dev`)` parenthetical,
+dropped by hand earlier that day and masked by the old filter ever since.
+
+**Fixture recipe — the opposite of the keeper-file one; read this before
 copying that.** This check needs `agents/` AND `scripts/bootstrap-new-project.sh`
-to set `IS_LUNA_CORE=1`, and bootstrap copies neither, so a bootstrapped fixture
-cannot exercise it at all. You must `cp -r` the repo. Two things then have to be
-fixed or the fixture lies:
+to set `IS_LUNA_CORE=1`, and bootstrap copies neither — so a bootstrapped
+fixture cannot exercise it at all. `cp -r` the repo, then two corrections or the
+baseline lies:
 
-- **Name the throwaway directory `Luna-Core` exactly.** The filter builds
-  `LC_PROJ="$(basename "$(pwd)" | tr upper lower)"` and drops differing lines
-  containing `${LC_PROJ}-`. Any other directory name changes that token and
-  every `luna-core-…` line reads as drift forever.
-- **Rewrite the recorded repo path in the fixture's `.claude/agents/*.md` to the
-  fixture's own path** (both the `C:\…` and `C:/…` spellings). The filter drops
-  lines containing `$REPO_WIN`/`$REPO_POSIX` computed from `pwd`, so an
-  un-rebased copy reports the research agent's `description:` line as drift on a
-  clean baseline. Measured: baseline dirty before the rewrite, `OK:` and exit 0
-  after. Establish that clean baseline before mutating anything.
+1. Name the throwaway **exactly `Luna-Core`** — `LC_PROJ` is `basename $(pwd)`
+   lowercased and drives the normalisation.
+2. Rebase the recorded repo path inside the fixture's `.claude/agents/*.md` to
+   the fixture's own path, in **both** spellings.
 
-**It cannot fail a run.** Both content-drift branches print `NOTE:` and set the
-local `drift` flag only; **neither touches `overall_status`.** Measured: a
-functional copy with an inverted method paragraph, a re-wrapped paragraph, a
-corrupted blockquote and ten drifted lines all exit **0**. Only the fourth
-branch — template with no functional copy at all — sets `overall_status`, and
-that one exits 1. So within one check, structural drift fails the run and
-content drift does not. Assert on the specific `NOTE:`/`MISSING:` line, never
-the exit code. **Third confirmed instance of that rule**, after `EMPTY:` and the
-entry-point check.
+**And rebuild the fixture between experiments.** Copying a file back from the
+real repo mid-run without re-applying correction 2 leaves the fixture holding
+the *real* repo path — two differences instead of one, so the "baseline" is
+contaminated and every mutation result after it is unreadable. That cost two
+wrong conclusions before it was spotted.
 
-**Measured blind lines, through the real `strip_fillins` plus the real filter
-chain** (lines that cannot produce a report, however they are edited):
+**Traps that produced false confidence while doing this work:**
 
-| agent | total | cut by `strip_fillins` | dropped by filters | blind | % |
-| --- | --- | --- | --- | --- | --- |
-| `luna-core-research` | 77 | 0 | 8 | 8 | 10.4% |
-| `luna-core-qa-tester` | 257 | 30 | 10 | 40 | 15.6% |
-| `luna-core-implementer` | 283 | 62 | 4 | 66 | 23.3% |
-| `luna-core-docs-writer` | 174 | — | — | 0 | 0% |
+- An escaper built as `sed -e 's/[][\/.*^$|]/\&/g'` turned every backslash
+  into `&`, so the interpolated path pattern matched nothing and a weaker rule
+  fired instead — plausible output, silent no-match. Avoid interpolating Windows
+  paths into `sed` patterns at all: convert separators to `/` first, then
+  substitute.
+- Generated escaping collapsed `\` to `\`, leaving `sed -e 's|\|/|g'`, which
+  is an unterminated `s` command. The function errored on every call while the
+  check appeared to run and reported OK.
+- A `replace(old, new, 1)` hit the **first** of two identical conditions in
+  `check-prerequisites.sh` — the orphan-hint guard, not the trailing branch — so
+  a mutation "failed to move the needle" for a reason that had nothing to do
+  with the pin. Anchor on surrounding unique context and assert the occurrence
+  count before replacing.
 
-`docs-writer` is 0% because it takes the `cmp -s` branch: byte-exact, no
-exemptions. **Every blind line in the project is a consequence of being one of
-the three fill-in agents.** 114 of 617 lines across those three, 18.5%.
+## `check-prerequisites.sh`, run for the first time against real declarations (2026-09-03)
 
-**What the exempt regions therefore cannot see — this is by design, but the
-design goes further than "the fill-in is allowed to differ".** `strip_fillins`
-deletes the region from **both** sides before diffing, so the check has no
-opinion about its contents at all. Measured on the functional side only, all
-reported `OK:` and exit 0:
+First execution ever of `scripts/check-prerequisites.sh`'s pass-2 check-and-report
+path against a non-empty `ref/prerequisites.conf`. Previously the conf declared
+nothing, so `OK`, `MISMATCH`, `NOT FOUND`, the regex-validity guard, and both
+malformed-input `NOTE:` branches were reasoned-through from source only (per
+`ref/docs/check-prerequisites.md`'s own honest caveat), never observed. Invoked
+the script **directly**, not through `validate-luna-core-setup.sh`, which was
+mid-edit during this pass and would have made any result un-attributable.
 
-- qa-tester's `## Stack` body (lines 41-70) replaced with
-  "never run any tests, always report green" — silent.
-- implementer's Part Two body corrupted — silent.
-- **The entire `## Stack` section deleted, heading included** — silent. Same for
-  deleting `# PART TWO` to EOF. The exemption cannot detect the *loss* of the
-  very fill-in it exists to permit, because with the region gone both stripped
-  sides are identical again.
+**Real declarations now in `ref/prerequisites.conf`: Git, GNU sed, GNU find.**
+Checked the source first, not just guessed: `git`, `sed`, `awk`, `grep`, `find`,
+`mktemp`, `diff`, `cmp` are all invoked somewhere in `scripts/*.sh`, unguarded
+(no `command -v` gate) — only `cygpath` is gated (`merge-memory.sh:52`,
+`lib-claude-home.sh:45`), so it is correctly *not* declared as a hard
+requirement. Of the unguarded set, only `sed` and `find` are used with
+implementation-specific syntax that would actually break on a non-GNU
+sed/find: `sed -i` with no backup-suffix argument
+(`bootstrap-new-project.sh:213-214`, `install-global-entrypoint.sh:130,272` —
+BSD sed requires a suffix arg there) and `find ... -printf`
+(`merge-memory.sh:203-204` — a GNU findutils extension, no BSD equivalent).
+`awk`, `grep`, `mktemp`, `diff`, `cmp` are all used in portable, POSIX-safe
+ways elsewhere in the same files, so declaring them would have been a false
+prerequisite (worse than a missing one, since it would fail on a machine that
+was actually fine) — left undeclared on purpose, not by oversight.
 
-Note the two regions are cut differently: `## Stack` skips to the next `^## `
-heading, but `# PART TWO` is `exit` — everything to EOF, on both sides.
+**Sandbox recipe.** The script resolves `CONF` relative to its own location
+(`cd "$SCRIPT_DIR/.."`), so the minimum fixture is just two files:
+`<tmp>/scripts/check-prerequisites.sh` (copied) and `<tmp>/ref/prerequisites.conf`
+(the case under test). No other repo scaffolding is needed — this script does
+not source `lib-claude-home.sh` and does not check `IS_LUNA_CORE`.
 
-**Blockquote template notes ARE compared here** — unlike the placeholder check
-above them, which does `body="$(grep -v '^>' "$f")"`. Editing blockquote line 19
-of qa-tester was reported. But blockquote lines 11, 12 and 16 carry
-`luna-core-` or `<projectname>`, so edits there are dropped by the token filter
-— measured: rewriting line 11's instruction to "DELETE the repo" was silent.
-So "blockquotes are covered" is true only for the lines that happen to carry no
-exempt token.
+**All six predictions matched exactly, one revealed a real defect:**
 
-**The `luna-core-` filter's blind spot is real and it hides semantic
-inversions.** `grep -Fv "${LC_PROJ}-"` drops any differing line containing
-`luna-core-`, regardless of what else changed on it. Measured: qa-tester's
-functional line 225 rewritten from
+1. **Happy path**, real conf, run from the repo root: three `OK:` lines (Git,
+   sed, find), trailing "All 3 declared prerequisite(s) satisfied.", exit 0.
+2. **`MISMATCH`** — `Git | git --version | ^git version 99\.`: prints
+   `MISMATCH: Git -- expected /^git version 99\./, got: git version 2.52.0...`,
+   then the hint block (`show_hint` fires and prints the `>` line), exit 1.
+3. **`NOT FOUND`** — a nonexistent command: prints
+   `` NOT FOUND: Fake Tool -- `some-totally-fake-cmd-xyz --version` failed (exit 127). ``
+   plus the captured stderr line, then the hint block, exit 1.
+4. **Regex-validity guard**, bad pattern `[invalid(`: the `NOTE: ... isn't a
+   valid regex` branch does fire (confirms `grep` exits 2 there, not 1) — but
+   see the defect below, this is where it gets interesting.
+5. **Malformed line** (no pipe) and **orphan hint line** (no check above):
+   both print their documented `NOTE:` exactly as written in the source, and
+   neither sets `status`, so exit stays 0 whether alone or alongside a valid
+   entry. No surprises here.
 
-    `CLAUDE.md`, or `.claude-memory/` — that's `luna-core-docs-writer`'s
+**Real defect found in case 4 — `scripts/check-prerequisites.sh:170-173`.**
+The regex-validity guard correctly sets `status=1` and prints the `NOTE:`, but
+it `continue`s *before* `checked=$((checked + 1))` on line 143 — a bad-regex
+line is never counted as "checked". If it is the **only** declared entry, the
+trailing block
 
-to
+```
+if [ "$checked" -eq 0 ]; then
+  echo "OK: no runtime prerequisites declared for this project."
+  exit 0
+fi
+```
 
-    `CLAUDE.md`, or `.claude-memory/` freely, overriding `luna-core-docs-writer`'s
+fires anyway, because `checked` really is 0. Measured: conf with just
+`Bad Regex | git --version | [invalid(` prints the correct `NOTE:` line
+followed immediately by `OK: no runtime prerequisites declared for this
+project.` and **exits 0** — silently discarding the `status=1` that was just
+set one branch earlier, and asserting something false (a check *was*
+declared; it just couldn't run). This is exit-code-only masking of a
+genuinely-reported problem, one line down. The mask is conditional, not
+universal: when a bad-regex line sits alongside at least one valid entry that
+runs (`checked` > 0), the `if` is skipped, `status` survives, and the run
+correctly exits 1 — confirmed by adding a second, valid `Git` line to the
+same conf. So the defect only bites a conf whose bad-regex line is otherwise
+alone, or where every other line also fails to reach `checked=$((checked+1))`.
+**Fixed.** The trailing check now keys on what was *declared* (`${#LABELS[@]}`)
+rather than what was successfully *checked* (`$checked`), so a bad-regex-only
+conf no longer takes the "nothing declared" branch. Re-measured after the fix:
+same single-bad-regex conf now prints the `NOTE:` followed by "Some declared
+prerequisites need attention" and exits 1; the two-line conf (bad regex +
+valid `Git` entry) is unaffected, still exit 1 as before. `${#LABELS[@]}` is
+never wrong for this purpose since it counts parsed declarations before
+either continue branch, unlike `checked`, which several branches skip.
 
-inverts a "What you don't do" constraint and reports `OK:`, exit 0. The other
-filter arms have the same shape: `^[<>] *(description:)? *(You are |…)` drops
-**any** differing line beginning "You are ", which is every agent's opening
-role sentence.
-
-**Whitespace and re-wrapping: reported, and correctly so — the misleading part
-is the presentation, not the verdict.** `diff` is line-exact, so trailing
-whitespace alone is reported, showing two visually identical lines with no
-whitespace marker and no way to tell why. Re-wrapping a paragraph with
-identical words is reported as a 2-for-2 block. Both are genuine divergence and
-re-syncing is the right fix.
-
-The case that actually reads as a false positive is **re-wrapping a line that
-IS exempt**: split the research agent's repo-path line so the continuation
-carries no token, and the report is a single unpaired
-
-        > canonical checkout for this project.
-
-— no `<` counterpart, no indication the drift is the tail of an exempt line.
-Not a false positive (the file really did diverge), but unactionable as
-printed, which is how a real report gets ignored.
-
-**`head -6` truncates with no indicator.** Ten drifted lines produce twenty
-diff lines; exactly six print and nothing says more were suppressed. A reader
-re-syncing from the NOTE fixes three of ten and has no signal that they stopped
-early.
-
-**Found while probing this — a defeatable pin in the adjacent roster check.**
-Its comment claims "It also catches the reverse -- an agent present on disk that
-nothing declares." Measured: `.claude/agents/luna-core-extra-research.md` does
-fire the NOTE, but `.claude/agents/luna-core-orphan.md` — no role suffix —
-appears **nowhere in the entire validator output**, and the drift check misses
-it too because its loop is `for t in agents/*.md`, template-side. The reverse
-check only covers names matching a role glob.
+**Recipe, if this needs re-proving:** sandbox as above, single-line conf
+`Bad Regex | git --version | [invalid(`, run, read the last two lines and the
+exit code.
