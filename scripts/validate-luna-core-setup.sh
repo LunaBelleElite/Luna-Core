@@ -285,11 +285,15 @@ echo
 # clone URL from its own repo's origin), so a child project naming
 # "scripts/install-global-entrypoint.sh" was pointing at a file that does not
 # exist there -- advice that cannot be followed, in every project bootstrapped
-# so far.
+# so far. [2026-09-02] Second instance, same shape: this branch also passed
+# a <hub-folder> argument, but the installer was rewritten to take NO arguments
+# (it reads the clone URL from its own checkout's origin). Extra arguments are
+# ignored, so nothing broke -- it just told the user to supply something that
+# does not exist, in every freshly bootstrapped project.
 if [ "$IS_LUNA_CORE" -eq 1 ]; then
   ENTRYPOINT_HOWTO="bash scripts/install-global-entrypoint.sh"
 else
-  ENTRYPOINT_HOWTO="bash <your-Luna-Core-checkout>/scripts/install-global-entrypoint.sh <hub-folder>  (not in this project -- it is machine-level)"
+  ENTRYPOINT_HOWTO="bash <your-Luna-Core-checkout>/scripts/install-global-entrypoint.sh  (not in this project -- it is machine-level)"
 fi
 
 echo "=== Agent repo paths (do they point at THIS machine?) ==="
@@ -389,7 +393,12 @@ elif ! grep -q 'luna-core:begin' "$ENTRY_MD"; then
   echo "      Add it with: $ENTRYPOINT_HOWTO"
   echo "      (your other content in that file is preserved)"
 else
-  STAMPED="$(grep -m1 'luna-core:version' "$ENTRY_MD" | sed 's/.*luna-core:version //; s/ *-->.*//')"
+  # Anchored deliberately. The obvious `sed 's/.*luna-core:version //'` is wrong:
+  # BRE `.*` is greedy, so a line naming the marker twice yields the text after
+  # the LAST occurrence -- reporting a current entry point as stale. grep -o
+  # takes the leftmost match, and the prefix strip below is anchored at ^ so it
+  # cannot slide past it. Same class as the greedy `.*(` in merge_index().
+  STAMPED="$(grep -m1 'luna-core:version' "$ENTRY_MD" | grep -o 'luna-core:version .*' | sed 's/^luna-core:version //; s/ *-->.*//')"
   if [ -z "$STAMPED" ]; then
     echo "NOTE: this machine's entry point predates version stamping -- re-run the installer:"
     echo "      $ENTRYPOINT_HOWTO"

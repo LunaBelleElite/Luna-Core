@@ -133,6 +133,15 @@ if [ -f "$GLOBAL_MD" ] && grep -qF "$BEGIN" "$GLOBAL_MD"; then
   # Replace just our block, preserving anything the user added around it.
   cp "$GLOBAL_MD" "$GLOBAL_MD.bak"
   awk -v b="$BEGIN" -v e="$END" -v f="$BLOCK_FILE" '
+    # Normalise a trailing CR before comparing. The grep -qF above matches the
+    # marker as a SUBSTRING, so a CRLF CLAUDE.md takes this replace branch --
+    # but `$0 == b` is an exact match, and on an awk that keeps the CR the
+    # marker never matches: every line falls through to `!skip`, the file is
+    # rewritten byte-identical, and the script still prints "Updated". A
+    # success-shaped no-op. Windows gawk strips the CR in text mode so this
+    # machine cannot see it; most other awks do not -- and the whole job of this
+    # installer is running on a machine we have never tested on.
+    { sub(/\r$/, "") }
     $0 == b { while ((getline line < f) > 0) print line; skip = 1; next }
     $0 == e { skip = 0; next }
     !skip
