@@ -17,6 +17,22 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.1.6.1 - 2026-09-03
+
+Small bug fix: the functional `/wake-up` command file had fallen out of
+sync with its own template source.
+
+- **Brought `.claude/commands/wake-up.md` back in sync with
+  `commands/wake-up.md`.** The prior commit (`ver-0.1.6.0-dev`) added a new
+  step to the template — checking for a sibling-clone dependency such as
+  Astrid — but that addition landed only in the template file and was
+  missed in the functional copy Claude Code actually reads when someone
+  runs `/wake-up`. The gap was caught during that prior commit's own merge
+  diligence. This commit copies the template's current content into the
+  functional file so the two are byte-identical again, meaning `/wake-up`
+  now actually runs the sibling-clone check as intended. No behavior
+  beyond that sync changed.
+
 ## ver-0.1.6.0 - 2026-09-03
 
 Large bug fix: `merge-memory.sh`'s `MEMORY.md` union only ever wrote back in
