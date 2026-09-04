@@ -17,6 +17,78 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-1.0.0.2-dev - 2026-09-04
+
+Doc-only fix: `README.md`'s "Wake Up / Debrief protocols" section stopped
+restating the natural-language trigger phrase list and the
+confirm-before-running rule, both of which `CLAUDE.md`'s section of the same
+name already owns authoritatively.
+
+- **Why:** the two copies had already drifted — README's Wake Up phrase list
+  was missing "are you up," which `CLAUDE.md`'s list has. Patching just the
+  missing phrase would have left the same two-copies-can-drift risk in place
+  for next time; this is the same class of bug already fixed several times
+  over in `wake-up.md`/`debrief.md` (see `ver-1.0.0.1-dev` below).
+- **Change:** replaced the bullet list's literal phrase enumeration and the
+  standalone confirm-before-running paragraph with a short pointer to
+  `CLAUDE.md`'s "Wake Up / Debrief protocols" section. Kept README's own
+  description of what each protocol actually *does* (Wake Up's freshness
+  check vs. full sweep, Debrief's handoff-notes-then-ask-to-publish flow) —
+  that's real content, not duplicated elsewhere.
+
+## ver-1.0.0.1-dev - 2026-09-04
+
+Doc-only addition: `wake-up.md` and `debrief.md` (template and functional
+copies of both) now name their own natural-language trigger path.
+
+- **Why:** neither file mentioned that it's reachable by a natural-language
+  phrase, not just its slash command, or that such a phrase requires
+  confirming with the user first — a rule that already lives in
+  `CLAUDE.md`'s "Wake Up / Debrief protocols" section. Someone reading only
+  the command file had no way to know either applied.
+- **Change:** added one line right after each file's top-level heading,
+  pointing at `CLAUDE.md`'s "Wake Up / Debrief protocols" section for the
+  exact phrases and the confirm-before-running rule, rather than restating
+  either — a second copy of that list or that rule would just be one more
+  place for it to drift, the same class of bug this session already fixed
+  several times over. Applied identically to `commands/wake-up.md`,
+  `.claude/commands/wake-up.md`, `commands/debrief.md`, and
+  `.claude/commands/debrief.md`; all four remain byte-identical to their
+  template source.
+
+## ver-1.0.0.0-dev - 2026-09-04
+
+Milestone: the user explicitly declared the move to `ver-1.0.0.0` — "the
+first final, built product for initial release," per this project's own
+versioning scheme, which requires exactly that explicit declaration and
+forbids the assistant proposing or asking about it first.
+
+- **What actually changes:** only the version number and what it now means.
+  This bump follows the scheme's own reset rule — the 1st number (A)
+  increments 0→1, and B/C/D all reset to 0 (from the pre-move
+  `ver-0.2.1.3-dev`). The pre-1.0 redirect rule retires with it: from here
+  on, a complete redesign/rewrite of the whole program or layout increments
+  A directly, instead of being redirected into B the way it was for the
+  entire `ver-0.x` phase.
+- **What does not change:** the shared "Versioning scheme" section in
+  `CLAUDE.md` — copied byte-for-byte into every project bootstrapped from
+  this kit via `bootstrap-new-project.sh`'s head/tail splice — already
+  described this move as a generic, timeless rule ("moving to
+  `ver-1.0.0.0` only happens when the user explicitly says so") rather than
+  a status claim about Luna-Core's own phase, so it needed no edit now that
+  the move has actually happened. Nothing about `dev`/`main` lockstep, the
+  A/B/C/D mechanics, or any other bootstrapped project's own version
+  changes here — this entry concerns Luna-Core's own version number only.
+- **Retrospective:** development ran `ver-0.1.0.0-dev` (2026-09-02) through
+  `ver-0.2.1.3-dev` (2026-09-04) — the four core agents (docs-writer,
+  research, qa-tester, implementer), the Wake Up/Debrief protocols, the
+  bootstrap/validate/merge-memory tooling, a two-PC blind onboarding
+  simulation campaign that converged clean across its final two cycles, and
+  the dev/main branch-discipline rules governing what does and doesn't
+  survive a merge to `main`. The full entry-by-entry history for all of it
+  remains below, unchanged and un-curated — this milestone entry summarizes
+  it, it doesn't replace it.
+
 ## ver-0.2.1.3-dev - 2026-09-04
 
 Trimmed README.md's Status paragraph to drop internal verification

@@ -4,6 +4,10 @@ description: Wake Up Protocol — pick up this project after time away, checking
 
 # Wake Up Protocol
 
+Triggered by `/wake-up` directly, or by a natural-language phrase — see
+`CLAUDE.md`'s "Wake Up / Debrief protocols" section for the exact phrases
+and the confirm-before-running rule that applies to those.
+
 Pick up this project after time away. Run through these steps in order.
 
 ## 1. Fetch the latest published state

@@ -4,6 +4,10 @@ description: Debrief Protocol — wrap up work on this project so it can be pick
 
 # Debrief Protocol
 
+Triggered by `/debrief` directly, or by a natural-language phrase — see
+`CLAUDE.md`'s "Wake Up / Debrief protocols" section for the exact phrases
+and the confirm-before-running rule that applies to those.
+
 Wrap up work on this project so it can be picked up cleanly by anyone (a
 different person, a different AI, a different computer) with no prior
 context. Run through these steps in order.

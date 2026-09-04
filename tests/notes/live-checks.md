@@ -570,6 +570,14 @@ two identically-instructed blind agents proved that gap live rather than
 theoretically. Recorded as a new open item rather than re-closing silently
 — see `open-items.md` `readme-step5-blind-dispatch-detection`.
 
+**Closed (2026-09-04).** README step 5 was tightened (`ver-0.2.0.3-dev`):
+a subagent must still attempt asking and trust its own dispatcher to relay
+the question toward a real person, and the fallback now requires concrete
+evidence no human is anywhere in the loop — "just being a subagent" no
+longer qualifies. This is exactly the concrete detection rule the exit
+condition above called for, so the open item is closed rather than left
+open pending a future cycle.
+
 ## Sim loop cycle 4: PC B pickup on a genuinely bare machine — clone-placement judgment call, and a self-stale handoff note, both verified (2026-09-04)
 
 Independently re-verified PC B's report against the filesystem/git state
