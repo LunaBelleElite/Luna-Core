@@ -6,3 +6,6 @@
 - [Claude Code skill stack setup](claude_code_skill_stack_setup.md) — how the skill sources install, the GadaaLabs installer bugs found, and what is actually installed on ASUNA-PC
 - [Fable is manual-only](feedback_fable_manual_only.md) — assistant routes only across Sonnet/Opus, never dispatches an agent on Fable, even on Max/Premium tiers; user invokes Fable themselves
 - [Simulation loop protocol](feedback_simulation_loop_protocol.md) — two-PC blind-agent onboarding/handoff test for Luna-Core; scoped pre-auth to commit/tag/push/merge-main only while a loop runs
+- [Sim loop paused before cycle 2](project_sim_loop_paused_cycle2.md) — cycle 1 fixes merged to main (ver-0.1.6.1), PC A onboards from main so this mattered; next session opens with a README/CHANGELOG wordiness pass
+- [Use Astrid's auto-speak](feedback_astrid_auto_speak.md) — write a spoken line to astrid-voice-state\last_line.txt on turns that earn one; established Sky+Jessica voice is already the default, no extra flag needed
+- [Astrid shares this memory scope](project_astrid_shares_this_memory_scope.md) — deliberate, user-directed: Astrid repo work is logged here too, not split into her own memory bucket; her agents can't be invoked by name from a Luna-Core-rooted session

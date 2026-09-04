@@ -17,6 +17,36 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.2.0.0-dev - 2026-09-04
+
+Policy change: Astrid (the personality/voice layer) is now brought in by
+default when bootstrapping a new project, instead of purely opt-in.
+
+- **Why:** a simulation-loop test this session ran a blind fresh bootstrap
+  through README.md's existing Getting Started flow, and `luna-core-qa-tester`
+  confirmed Astrid never gets adopted unless a user proactively asks for
+  her — exactly what the old wording specified. That was correct behavior
+  under the old policy, but the user decided the policy itself should flip:
+  most people bootstrapping a project want the same personality this kit was
+  itself developed with, and shouldn't have to already know to ask for it.
+- **New default:** README.md's Getting Started step 5 now has the session
+  introduce Astrid right after bootstrap finishes — a short blurb on what
+  she is, a plain statement that she'll be brought in unless the user says
+  otherwise, and a direct question the session waits on for a real answer.
+  Declining skips the clone and removes the "Personality & voice: Astrid"
+  bullet from the new project's generated `CLAUDE.md`, so an opted-out
+  project doesn't carry a dangling reference. Accepting — or defaulting,
+  only when no interactive answer is possible at all — clones her as a
+  sibling exactly as that bullet already describes, and now also confirms
+  `PERSONALITY.md`/`VOICE.md` actually landed rather than trusting the
+  clone command's exit code.
+- **Unchanged:** `scripts/bootstrap-new-project.sh` itself still
+  unconditionally generates the descriptive Astrid paragraph in every new
+  project's `CLAUDE.md` toolkit section — that text is harmless reference
+  material with no side effect on its own. The clone-or-not decision and
+  the conditional bullet removal both happen as session-level follow-up
+  steps per README's instructions, not inside the script.
+
 ## ver-0.1.6.3-dev - 2026-09-04
 
 Doc-only fix: CLAUDE.md's "This project's toolkit" section no longer

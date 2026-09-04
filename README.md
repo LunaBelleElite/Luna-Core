@@ -52,10 +52,24 @@ You're new here and want to use this kit for your own project:
    did.
 4. **Fill in the three things bootstrap can't fill in for you** — see "Still
    needs manual attention after bootstrap," below.
-5. **Optional: her voice and personality.** This kit's agents and protocols
-   don't require it, but if you want the same AI personality this project
-   was itself developed with, see the "Astrid" bullet in your new project's
-   `CLAUDE.md` toolkit section for where to get her and how she works.
+5. **Astrid, brought in by default.** Right after bootstrap finishes, the
+   session introduces her: a short blurb — she's the personality/voice layer
+   this kit's agents and protocols were themselves developed with, and none
+   of them require her — states plainly that she'll be brought in unless you
+   say otherwise, and asks you directly whether you want her. This is a real
+   question to wait on, not a silent assumption; only skip the clone if you
+   actually decline.
+   - **If you decline:** nothing is cloned, and the session removes the
+     "Personality & voice: Astrid" bullet from your new project's
+     freshly-generated `CLAUDE.md` toolkit section, so it doesn't carry a
+     dangling reference to a personality it isn't using.
+   - **If you accept — or if a fully non-interactive bootstrap run has no
+     way to get a real answer, in which case bringing her in is the
+     fallback rather than assuming a decline that was never said** — the
+     session clones her as a sibling exactly per that same bullet's own
+     instructions (`../<project>`, always the `dev` branch), then confirms
+     `PERSONALITY.md` and `VOICE.md` actually landed before reporting done,
+     rather than trusting the clone command's exit code alone.
 
 That's the whole path. Everything below is reference material — what's in
 the kit, why it's shaped the way it is, and how to maintain a Luna-Core
