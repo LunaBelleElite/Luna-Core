@@ -188,27 +188,23 @@ new project also needs its own `README.md` written from scratch.
 
 ## Wake Up / Debrief protocols
 
-Two session-boundary rituals, available as slash commands
-(`.claude/commands/wake-up.md`, `debrief.md`) and as natural-language phrases
-recognized via `CLAUDE.md`.
+Two session-boundary rituals, reachable either as slash commands
+(`.claude/commands/wake-up.md`, `debrief.md`) or via a natural-language
+phrase — see `CLAUDE.md`'s "Wake Up / Debrief protocols" section for the
+exact trigger phrases and the confirm-before-running rule; that's the
+authoritative copy, not restated here.
 
-- **Wake Up** — "wake up", "let's get our day started", "are you awake", or
-  `/wake-up`. Fetches the latest published state, then checks whether the
+- **Wake Up** — fetches the latest published state, then checks whether the
   computer has changed since the last recorded check (via `handoff/STATUS.md`).
   Same computer → a quick freshness check. Different computer, or first run → a
   full sweep: memory, `handoff/HANDOFF.md`, recent commits, CHANGELOG, README,
   and a *functional* test of every agent in `.claude/agents/` — actually
   invoking each one, since a machine switch is exactly when an agent could be
   stale or missing.
-- **Debrief** — "let's end here for the day", "I'm switching to another
-  computer", or `/debrief`. Preps everything docs-writer owns, writes
+- **Debrief** — preps everything docs-writer owns, writes
   `handoff/HANDOFF.md` with enough detail for a total stranger to continue,
   records the computer and timestamp, then **asks** to commit and publish — it
   never does so on its own.
-
-**When triggered by a phrase rather than the slash command, confirm before
-running either** — with a little personality, like a butler checking in, not a
-flat system prompt. Typing the slash command already counts as confirmation.
 
 `handoff/STATUS.md` and `handoff/HANDOFF.md` are dev-only, never `main`, owned
 by `<projectname>-docs-writer` — same treatment as `.claude-memory/` and
