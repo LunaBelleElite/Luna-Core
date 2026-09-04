@@ -57,8 +57,10 @@ You're new here and want to use this kit for your own project:
    this kit's agents and protocols were themselves developed with, and none
    of them require her — states plainly that she'll be brought in unless you
    say otherwise, and asks you directly whether you want her. This is a real
-   question to wait on, not a silent assumption; only skip the clone if you
-   actually decline.
+   question to wait on, not a silent assumption — in an interactive session
+   that means asking and letting the turn end there, the same way any
+   in-chat question naturally waits for your next reply; only skip the clone
+   if you actually decline.
    - **If you decline:** nothing is cloned, and the session removes the
      "Personality & voice: Astrid" bullet from your new project's
      freshly-generated `CLAUDE.md` toolkit section, so it doesn't carry a

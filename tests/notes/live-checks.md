@@ -337,6 +337,69 @@ scripts/check-superpowers.sh` (exit 0, both plugin deps OK) — both used here
 as the standing regression check, not as new coverage of their own; see their
 own entries above for what those checks actually probe.
 
+## Sim loop cycle 3: Astrid opt-out-by-default policy fix, verified end to end on a genuine `main` bootstrap (2026-09-04)
+
+First cycle where the source clone (`C:\Claude\sim-testing\pc-a\Luna-Core`)
+was left in place for direct inspection — cycle 2's entry above had asked for
+exactly this. Confirmed directly, not inferred: `git branch` shows `main`,
+`git log -1` shows HEAD == `origin/main` == tag `ver-0.2.0.0`, working tree
+clean. `SimProject\CHANGELOG.md` correctly does **not** mirror
+`Luna-Core\CHANGELOG.md`'s `ver-0.2.0.0` entry — a fresh bootstrap always
+generates its own single-entry `ver-0.1.0.0-dev` CHANGELOG regardless of the
+source branch's version, per `bootstrap-new-project.sh`'s own heredoc
+generation (confirmed again this cycle, consistent with cycle 2's reading of
+the script). Don't mistake that divergence for a bug on a future cycle — the
+two files are supposed to differ in content and in version, only the
+Astrid/toolkit-generation *logic* they were bootstrapped with needs to match.
+
+`bash scripts/validate-luna-core-setup.sh` inside `SimProject`: exit 0, same
+NOTE-only shape as cycle 2 (no README yet, qa-tester/implementer placeholders
+unfilled, no machine-level entry point) — nothing that should have been OK/
+MISSING came back wrong.
+
+All four `.claude/agents/*.md` renamed correctly (`simproject-*`, frontmatter
+`name:` matches filename), cross-references between agents rewritten to
+`simproject-*`, and the literal-filename fix (2026-09-03 entry above) still
+holds: `awk '!/^>/ && /luna-core/'` across all four files turns up only the
+two known literal `validate-luna-core-setup.sh` mentions in
+`simproject-docs-writer.md`, nothing else. Blockquote template-note lines
+diffed byte-for-byte against `agents/luna-core-*.md` in the source clone:
+zero differences across all four roles. Research agent's repo-path
+placeholder correctly filled with `C:\Claude\sim-testing\pc-a\SimProject`
+(branch `dev`), not the `<directory>` placeholder.
+
+**Astrid, the actual point of this cycle — first time the new opt-out-by-
+default policy (ver-0.2.0.0) has been exercised by a real blind bootstrap.**
+`C:\Claude\sim-testing\pc-a\Astrid` is a genuine clone, `git branch` shows
+`dev`, tracking `origin/dev`, clean tree, remote is the real Astrid GitHub
+URL. `PERSONALITY.md` (164 lines) and `VOICE.md` (207 lines) both present
+and non-empty on disk — checked with `wc -l`, not just `ls`. It sits as a
+true sibling of `SimProject` (both direct children of `pc-a`), matching the
+"Personality & voice" bullet's own `../Astrid` description.
+`SimProject\CLAUDE.md`'s toolkit section still carries that bullet in full
+(URL, sibling-clone framing, `dev`-branch rationale, `git -C ../Astrid pull`
+line) — correct, since Astrid was accepted rather than declined; README's
+step 5 says the bullet gets *removed* only on decline, and it wasn't
+declined here. `CLAUDE.md`'s versioning line still reads the corrected
+"started at `ver-0.1.0.0-dev` ... see CHANGELOG.md for the current version"
+form (2026-09-03-era fix), not a regression to a hardcoded number.
+
+**Open question surfaced, not yet resolved — see `open-items.md`
+`readme-step5-turn-semantics`.** This cycle's blind subagent satisfied
+README step 5's intent (a real human answer was obtained and correctly
+acted on for both the project name and the Astrid question) but only by
+ending its turn with the question as its final report, then being
+re-dispatched with the answers folded in as a second invocation — not by
+blocking synchronously within one turn the way "a real question to wait on"
+reads. It worked here because the human relaying the sim loop understood to
+feed the answer back into a fresh dispatch; nothing in README step 5 itself
+tells a future subagent (or an automated harness standing between two
+dispatches) that ending the turn *is* the correct way to satisfy "wait on,"
+as opposed to a stall or a failure to complete. Recorded as an open item
+rather than a defect, since nothing was actually done wrong this cycle — the
+outcome was correct, only the instruction's wording is silent on the
+mechanism a non-interactive dispatch actually has available.
+
 ## Sim loop cycle 2: literal-filename fix holds on a genuine main-branch bootstrap; main/dev are indistinguishable from bootstrap output alone (2026-09-04)
 
 Verified PC A's real bootstrap output (`C:\Claude\sim-testing\pc-a`, blind subagent, claimed clone of `origin/main` ver-0.1.6.1) rather than a synthetic fixture — first time the literal-`validate-luna-core-setup.sh`-filename fix (see the 2026-09-03 entry above) has been checked against a genuine end-to-end run instead of a controlled fixture. Confirmed clean: `awk '!/^>/ && /luna-core/'` over all four copied `.claude/agents/*.md` files turns up exactly the two expected literal-filename mentions in `simproject-docs-writer.md` (lines 89, 207) and nothing else — no other unrenamed `luna-core-` leftover outside a blockquote line. Blockquote template-note lines diffed byte-for-byte against the current repo's `agents/luna-core-*.md` templates: zero differences across all four roles. Cross-references between agents (implementer -> qa-tester, qa-tester -> docs-writer, research -> docs-writer) all correctly rewritten to `simproject-*`. `validate-luna-core-setup.sh` run fresh inside `pc-a`: exit 0, only the expected `NOTE:` lines (no README yet, qa-tester/implementer placeholders unfilled, no machine entry point) — nothing that should be an `OK:`/pass came back as a `NOTE:` or `MISSING:`.

@@ -8,3 +8,4 @@ Read whole on every qa-tester pass — it is meant to stay one screen.
 
 | id | Question | Detail in | Exit condition | Owning test |
 | --- | --- | --- | --- | --- |
+
