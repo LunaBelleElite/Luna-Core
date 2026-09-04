@@ -17,7 +17,7 @@ Recorded under this exact heading because the Wake Up protocol's first step look
 ## Current state
 
 - This is `main`: the settled, stranger-facing snapshot. All development happens on `dev`.
-- It has not yet been through an end-to-end onboarding simulation. See the caveat near the top of `README.md` before relying on it.
+- For this snapshot's onboarding-simulation status, see the caveat near the top of `README.md` — kept there rather than restated here, so there's exactly one place that claim can go stale.
 
 ## In progress / not yet resolved
 

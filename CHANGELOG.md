@@ -17,6 +17,38 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.2.1.0 - 2026-09-04
+
+Corrected a stale credibility claim in README.md, and added a standing
+self-check to catch this whole class of bug going forward.
+
+- **Why:** README's opening caveat said `main`'s onboarding path "has not
+  yet been run through an actual onboarding simulation" — true when it
+  was written, but a real two-PC blind simulation campaign ran tonight
+  (four cycles, converging on two clean cycles in a row, each
+  independently verified) and made the sentence false without anyone
+  updating it. The same shape of bug showed up three other times this
+  session — two hardcoded version numbers left behind after a bump, and
+  Debrief's own handoff note going stale the moment the next session
+  touched it — all a sentence stating something as currently true that's
+  guaranteed to go stale the moment reality moves past it. `main`'s own
+  copy of `handoff/HANDOFF.md` carried the same stale claim in its
+  "Current state" section, written there by hand during an earlier merge
+  with no template backing it, so the next merge had nothing to correct
+  it from.
+- **Change:** rewrote the README caveat to reflect the real simulation
+  history while staying honest that the project is still young and
+  actively changing. Added a carve-out to `luna-core-docs-writer`'s
+  branch discipline (both the portable template and the functional copy)
+  for Luna-Core's own `main` copy of `handoff/HANDOFF.md`: it no longer
+  reuses bootstrap's "just set up, first run" wording (false for
+  Luna-Core's own history) or hand-writes its own point-in-time status
+  claim — it defers to README's caveat instead, so there's exactly one
+  place that claim can go stale rather than two copies drifting
+  independently. Also added a short standing "Watch for self-stale
+  claims" instruction telling any future docs pass to actively look for
+  this pattern.
+
 ## ver-0.2.0.4 - 2026-09-04
 
 Wording addition only: the Wake Up protocol now covers the case where a
