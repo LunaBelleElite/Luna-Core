@@ -17,6 +17,24 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.2.0.1 - 2026-09-04
+
+Wording clarification only: README.md's Getting Started step 5 now spells
+out what "wait on a real answer" means for the Astrid question.
+
+- **Why:** this session's cycle-3 simulation test confirmed the mechanism
+  already works correctly — a non-interactive dispatch ends its turn with
+  the question and gets re-invoked with the answer, which is exactly how a
+  live interactive session also naturally works (ask in chat, the turn
+  ends, the user's next message continues it). Nothing was implemented
+  wrong; the old wording just didn't name that mechanism, which could read
+  as implying synchronous in-turn blocking to a future reader.
+- **Change:** added one clarifying clause to step 5 — no change to the
+  underlying policy, which is still opt-out-by-default with a real decline
+  required to skip Astrid.
+- Closes open item `readme-step5-turn-semantics` in
+  `tests/notes/open-items.md`.
+
 ## ver-0.2.0.0 - 2026-09-04
 
 Policy change: Astrid (the personality/voice layer) is now brought in by
