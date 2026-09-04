@@ -17,6 +17,23 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.2.1.3-dev - 2026-09-04
+
+Trimmed README.md's Status paragraph to drop internal verification
+methodology and process detail.
+
+- **Why:** the onboarding-simulation claim named the specific process used
+  to verify it (a multi-cycle blind onboarding campaign, then even the
+  general "what verified means" description) — the same category of
+  dev-process detail already kept off `main`'s CHANGELOG.md, just showing
+  up in README prose this time instead.
+- **Change:** kept only the plain claim — "the onboarding path has been
+  tested and verified working" — and dropped both the specific
+  campaign/cycle-count detail and the general description of how
+  verification works. The paragraph's honesty about the project's
+  maturity — still young, still changing, `main` can still have rough
+  edges, budget adjustment time — is unchanged.
+
 ## ver-0.2.1.2-dev - 2026-09-04
 
 Corrected the previous entry's fix: `main`'s `CHANGELOG.md` shouldn't carry
