@@ -104,7 +104,19 @@ So, per path, on `main`:
   placeholder text `scripts/bootstrap-new-project.sh` already generates
   for a new project rather than this project's real notes. Reuse that
   wording rather than inventing a second variant that then has two places
-  to drift.
+  to drift. **Luna-Core's own `main` is the one exception**: bootstrap's
+  wording assumes zero history ("just set up... nothing yet, first run"),
+  which is false for Luna-Core's own `main` — real work already happened
+  on `dev`. Write a short, honest "Current state" note instead (settled
+  `main` snapshot, real history lives on `dev`) — and never restate a
+  point-in-time status claim inline (onboarding-simulation status, version
+  numbers, or anything else with its own real source elsewhere). Point to
+  the file that's actually kept current instead — e.g. README.md's own
+  caveat for simulation status — so there's exactly one place that claim
+  can go stale, not two copies drifting independently. (This carve-out
+  exists because the generic wording above once got hand-replaced with a
+  status claim that was never updated afterward — see "Watch for
+  self-stale claims" below.)
 - **`.claude/agents/*.md`** — the files stay, but never this project's
   filled-in copies. Those record an absolute repo path, so the validator's
   agent-path check passes here and fails on anyone else's clone — the
@@ -155,6 +167,23 @@ remember it correctly). Key points for your job specifically:
   exact state. This is part of preparing the commit, same as everything
   else here — still requires the user's separate explicit permission
   before the commit/tag/publish actually happen.
+
+## Watch for self-stale claims
+
+During any docs review, actively watch for this pattern: a sentence that
+states something as currently true which could plausibly have already
+changed by the time it's read — a milestone claimed as "not yet done," a
+number or status restated inline instead of deferred to its real source
+(the latest `CHANGELOG.md` header, README's own caveat, etc.), or a status
+claim that's really a one-time snapshot dressed up as an ongoing fact.
+This showed up four times in one session: two hardcoded version numbers
+left behind after a bump, Debrief's own handoff note going stale the
+moment the next session touched it, and README's "main has not yet been
+simulated" claim, which a real simulation run later falsified while the
+sentence just sat there asserting the old state. Prefer wording that ages
+safely — defer to whichever file is actually kept current, or state
+something that stays true regardless of what happens next — over a
+sentence that's accurate today and false tomorrow.
 
 ## When you're invoked
 

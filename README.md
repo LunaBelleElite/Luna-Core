@@ -17,11 +17,15 @@ finished, stable release, and it changes often. If you're adopting this,
 clone the `main` branch specifically, not `dev`: `main` is the settled
 snapshot meant for exactly this; `dev` is where active work happens and can
 be mid-change at any given moment, including content specific to this
-project's own history that a new adopter doesn't need. **`main` itself is
-still a very rough build** — it exists, but it has not yet been run through
-an actual onboarding simulation (a fresh clone, a fresh AI session, start to
-finish, checked by someone who isn't its author). If you're bringing it into
-a new project, budget time for it to need adjustment.
+project's own history that a new adopter doesn't need. **The onboarding path
+has been simulated and verified working** — a two-PC blind onboarding
+campaign (a fresh clone, a fresh AI session, start to finish, checked by
+someone who isn't its author) ran across four cycles, converging on two
+clean cycles in a row, each independently verified. That's real coverage,
+not proof of polish: this is still a young, actively-changing project, and
+`main` can still have rough edges a single simulation campaign won't catch.
+If you're bringing it into a new project, budget time for it to need
+adjustment.
 
 ## Getting started
 
