@@ -17,6 +17,35 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.1.6.3-dev - 2026-09-04
+
+Doc-only fix: CLAUDE.md's "This project's toolkit" section no longer
+hardcodes the current version number in prose.
+
+- **Why:** versioning here is immediate — every commit-worthy change gets
+  its own new CHANGELOG.md version header right away, per this file's own
+  "Versioning & CHANGELOG entries" rules. A line stating "currently
+  ver-X" in CLAUDE.md therefore went stale on essentially every commit,
+  and had already needed manual re-syncing more than once.
+- **Root cause:** this line had drifted from a pattern that was already
+  correct elsewhere in this same repo. `scripts/bootstrap-new-project.sh`
+  generates this exact toolkit section for every other project bootstrapped
+  from Luna-Core, and its own template line reads "started at ver-X" —
+  a permanent historical fact — rather than "currently ver-X." Luna-Core's
+  own self-hosted CLAUDE.md had deviated from that correct template
+  wording at some point in its history; nothing else needed to change.
+- **Fix:** reworded the line to "started at `ver-0.1.0.0-dev`" (Luna-Core's
+  actual first CHANGELOG.md entry), deferring "what's the current version"
+  to CHANGELOG.md — the real single source of truth — instead of
+  duplicating a number that changes constantly. Checked README.md and the
+  rest of CLAUDE.md for any other instance of this same hardcoded-current-
+  version pattern; none were found (CLAUDE.md's other `ver-0...` mentions
+  are the versioning scheme's own generic example numbers, not claims
+  about the current version, so they were left alone).
+- **This line should never need touching again on a routine version
+  bump.** A future session should not "fix" it back to a hardcoded
+  current-version number.
+
 ## ver-0.1.6.2-dev - 2026-09-04
 
 Doc-only change: a wordiness/concision trim on README.md and on this
