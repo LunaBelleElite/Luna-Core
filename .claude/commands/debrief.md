@@ -50,7 +50,14 @@ it. At minimum:
   blocked)
 - Any decisions made this session and why, especially ones not yet
   reflected elsewhere
-- Anything uncommitted, and why (if there's a reason it wasn't committed)
+- Anything uncommitted, and why (if there's a reason it wasn't committed) —
+  meaning genuinely separate work still open beyond this session, not this
+  Debrief's own pending commit/publish decision. That part is inherent to
+  every Debrief run and self-resolving: step 5 handles it right after this
+  note is written, so asserting it here just goes stale the moment step 5
+  runs, baked into the very commit that discharges it. Wake Up's own step
+  3c already checks live git state independently rather than trusting this
+  file for that.
 - Concrete next steps
 - Anything the previous handoff flagged that's now resolved, so it doesn't
   get re-flagged

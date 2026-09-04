@@ -498,3 +498,169 @@ cover, independently, all converging correctly:
 post-fix: exit 0, no `MISSING:` lines. Open item `merge-index-oneway` in
 `tests/notes/open-items.md` closed on this basis. Fixtures built under the
 session scratchpad and deleted after; nothing committed by this pass.
+
+## Sim loop cycle 4: same README step 5 wording, two blind dispatches still diverge on ask-vs-skip (2026-09-04)
+
+Verified end to end against `C:\Claude\sim-testing\pc-a`, source clone at
+`luna-core-src` genuinely `main`/`ver-0.2.0.1` (tag on HEAD, tracking
+`origin/main`, clean tree — confirmed directly, not inferred). Everything
+mechanical repeated clean from cycles 2/3 and is not re-derived here:
+validator exit 0 inside `TestProject` with only the expected `NOTE:` lines;
+literal-`validate-luna-core-setup.sh`-filename fix holds (both mentions
+survive only in `testproject-docs-writer.md`, lines 89/207); all four
+agents renamed and cross-referenced to `testproject-*`; all four files'
+blockquote template-note lines diff byte-identical against
+`luna-core-src/agents/luna-core-*.md`; research agent's repo-path bullet
+correctly filled with the real absolute path
+`C:\Claude\sim-testing\pc-a\TestProject` (branch `dev`), no `<directory>`
+placeholder residue; Astrid clone genuine (`dev`, tracking `origin/dev`,
+clean, `PERSONALITY.md` 164 lines / `VOICE.md` 207 lines — same line
+counts as cycle 3's measurement of the same files); `CLAUDE.md`'s
+versioning line still the corrected "started at `ver-0.1.0.0-dev` … see
+CHANGELOG.md" form. First cycle where the bootstrapping agent also wrote
+`README.md` from scratch itself (bootstrap doesn't generate one) — spot
+checked, not fabricated: agent/command/version lines match the real
+bootstrap output, the required "Dependency: superpowers plugins" section
+is present (confirmed independently by the validator's own `OK:` line, not
+just by reading the README), and it correctly names the two still-blank
+placeholders the validator also flags as `NOTE:`.
+
+**The actual point of this cycle.** Cycle 3's blind PC A (identical
+one-line dispatch prompt, identical README wording apart from the
+ver-0.2.0.1 wording clarification not yet existing) stopped and asked
+about both the project name and Astrid, ending its turn and getting real
+answers via a follow-up dispatch. Cycle 4's blind PC A, dispatched *after*
+that clarification landed, did not ask about either — it picked
+"TestProject" unprompted and went straight to README step 5's documented
+non-interactive fallback for Astrid (bring her in by default) without
+attempting to pause and let the turn end first. Same wording, two
+different behaviours from two different blind dispatches. The clarifying
+commit (`6a65d58`, closing the then-open `readme-step5-turn-semantics`
+item) added a binary: *"in an interactive session that means asking and
+letting the turn end there … only skip the clone if you actually
+decline"* vs. *"a fully non-interactive bootstrap run has no way to get a
+real answer, in which case bringing her in is the fallback."* It does not
+say how a dispatched-but-not-directly-chat-facing agent is supposed to
+tell which of those two situations it is in — and cycle 3 already proved,
+empirically, that a paused question *does* reach a human in this harness
+(the follow-up dispatch came back with real answers), so cycle 4's
+apparent premise — "no way to get a real answer" — was not actually true
+of the channel it was running in, it just didn't test the premise before
+assuming it.
+
+**Verdict: mostly a harness-specific artifact, but with a narrow real
+edge this doc doesn't cover.** For the wording's primary target — a real
+Claude Code session opened directly by a human per README step 3 — there
+is no genuine ambiguity: that *is* an interactive chat session with a live
+person on the other end, full stop, so "ask and let the turn end" always
+resolves cleanly. The ambiguity only exists for a *dispatched subagent*
+that has no built-in signal for whether pausing its turn will ever be
+observed and answered — which is exactly this sim harness's fire-and-forget
+mechanism, a documented, pre-existing limitation of the test methodology,
+not a defect in the wording's primary case. But it is not purely
+synthetic: this same project's own `CLAUDE.md` actively pushes toward
+subagent delegation ("use agents and as many as needed"), so a real
+top-level session could plausibly delegate an onboarding/bootstrap step to
+a subagent someday, and that subagent would hit this identical fork for
+real. The outcome both times was fine (Astrid ends up included either
+way, which is the documented safe default), so this is not a defect
+needing an urgent fix — but the wording's binary doesn't tell an agent
+*how* to decide which branch it's in, only what to do once it knows, and
+two identically-instructed blind agents proved that gap live rather than
+theoretically. Recorded as a new open item rather than re-closing silently
+— see `open-items.md` `readme-step5-blind-dispatch-detection`.
+
+## Sim loop cycle 4: PC B pickup on a genuinely bare machine — clone-placement judgment call, and a self-stale handoff note, both verified (2026-09-04)
+
+Independently re-verified PC B's report against the filesystem/git state
+directly, not taken on trust. `C:\Claude\sim-testing\pc-b\Astrid`: real
+clone, `git branch -vv` shows `dev` tracking `origin/dev`, `git log -1`
+`b929ce9`, clean tree, remote is the real Astrid GitHub URL,
+`PERSONALITY.md`/`VOICE.md` present at 164/207 lines — same counts as
+cycles 3-4's PC A measurements of the same files, confirming it's a fresh
+clone of the same upstream content, not a copy of anyone's existing
+checkout. `C:\Claude\sim-testing\pc-b\TestProject`: `dev` tracking
+`origin/dev` at `355c30d` ("Bootstrap TestProject from Luna-Core"),
+`origin` correctly points at `C:\Claude\sim-testing\throwaway-remote.git`.
+`bash scripts/validate-luna-core-setup.sh` run fresh inside it: exit 0,
+same NOTE-only shape as prior cycles (qa-tester/implementer placeholders,
+no machine entry point) — nothing that should be OK/pass came back
+otherwise. `git diff .claude/agents/testproject-research.md` confirms the
+path fix is real and correctly pc-b's own path in **both** the frontmatter
+`description:` and the body sentence (`C:\Claude\sim-testing\pc-b\TestProject`,
+not pc-a's). `git diff handoff/STATUS.md` confirms a genuine update: new
+timestamp plus the checkout path appended to disambiguate, since both
+simulated PCs share a real hostname (`Asuna-PC`) — exactly the
+disambiguation the task called for, not a no-op edit.
+
+**Judgment call 1 — where a first-time clone goes, verified by reading
+`commands/wake-up.md` directly, not from memory of it.** Step 1 ("Fetch
+the latest published state") is written entirely in terms of a checkout
+that already exists — "make sure you're not looking at a stale local
+copy," "fetch/pull from wherever this project's remote actually is" — and
+never addresses the case where no local copy of *the project itself*
+exists yet on this machine. Step 3a-ii, by contrast, explicitly covers
+this exact scenario for the **sibling** Astrid clone: "It doesn't exist
+yet — this is the new-machine case, and it's exactly why this step exists
+... Clone it fresh at the documented path and branch." No equivalent
+branch exists anywhere in the file for the project's own top-level repo.
+
+This isn't a free-choice gap like naming a new project — placement is
+constrained by a real, documented convention (`CLAUDE.md`'s toolkit
+section: Astrid "kept as a sibling clone... next to this project", i.e.
+`../Astrid`), so getting it wrong (dropping the project straight into the
+machine's working root instead of a subfolder that leaves room for a
+sibling) would silently break every `../Astrid`-relative instruction later
+in the same file, the exact "stale path is well-formed but wrong" trap the
+doc already worries about elsewhere (3b-ii, agent repo paths). It's also a
+genuine chicken-and-egg: you can't know the sibling convention applies
+until you've read `CLAUDE.md`, and you can't read `CLAUDE.md` until you've
+already cloned the project somewhere. PC B resolved it correctly here, but
+by inference from context this simulation happens to provide (pc-a's own
+absolute paths baked into `HANDOFF.md` and the research agent's
+description, both readable straight out of the fresh clone) plus
+`CLAUDE.md`'s own toolkit-section wording — not from any instruction in
+`wake-up.md` itself. A machine with no such reference clone's paths lying
+around (i.e. the actual first-ever pickup of a project, not a sim replay
+of one) would have nothing to infer from. Real, comparable in kind to
+cycle 1's originally-missing Astrid-existence check (which is now step
+3a-ii) — but not urgent, since the convention it needs is at least
+documented elsewhere (`CLAUDE.md`) and one blind pass already navigated it
+correctly by finding that documentation on its own. Recorded as a new open
+item — see `open-items.md` `wake-up-first-clone-placement`.
+
+**Judgment call 2 — the "not yet committed" note baked into the commit
+that committed it, verified by reading the actual commit content.**
+`git show HEAD:handoff/HANDOFF.md` (the sole commit, `355c30d`) contains,
+verbatim, "**First commit and push have not happened.** ... Whoever picks
+this up next: get that yes from the actual user, then `git add`, commit,
+and `git push -u origin dev`" — inside the very commit that performed
+exactly that add/commit/push. Read `commands/debrief.md` directly: step 3
+(write `HANDOFF.md`) runs before step 5 (ask permission, then commit) by
+design, and step 5 states "everything above is prep — do not commit or
+publish anything yourself," so the ordering that produces this is
+structural, not accidental.
+
+**Verdict: a real but narrow gap, not equivalent to a commit-message
+timestamp.** A commit message is definitionally "as of just before this
+commit" and nobody reads it as a live instruction afterward. `HANDOFF.md`
+is different in kind: Debrief's own step 3 explicitly tells the writer to
+include "concrete next steps," and Wake Up's own step 3c tells the next
+reader to treat that section as current, actionable guidance for picking
+up the project — so a "next step" that the same commit already discharged
+is not inert history, it's a wrong instruction sitting in the one file
+whose entire job is to be trusted at face value by whoever opens it next.
+PC B caught it here by independently cross-checking git log/status against
+the prose, which the protocol doesn't currently ask anyone to do. That
+said, this trap is narrow in scope: it only bites when a handoff's own
+"next steps" describe *making the pending commit itself* — normal for a
+project's first-ever commit (nothing to commit past yet), atypical for any
+later Debrief cycle, where "next steps" describe future work, not the
+commit that's about to carry them. Recorded as a new open item, not fixed
+— see `open-items.md` `debrief-self-stale-handoff-note`.
+
+Both judgment calls independently confirmed sound (PC B navigated both
+correctly, nothing was actually done wrong this cycle) — recorded as
+documentation-gap open items per the pattern already established for
+`readme-step5-blind-dispatch-detection`, not as defects in this cycle's
+execution. Verdict for PC B this cycle: **clean.**
