@@ -147,6 +147,28 @@ first — it also documents the exact fixture recipe and mutation-testing
 numbers (reverting to the greedy form reds 8 of 13 assertions) needed to
 re-prove a fix.
 
+**A second, independent bug sat in the write-back gate itself**, described in
+detail in `tests/notes/live-checks.md`'s "`merge_index()`'s write-back only
+fires in one direction" section. The paragraph above (and the write-back
+gate's own intent) says the union writes back to both sides "when anything
+new was added" — but the original gate, `[ "$added" -gt 0 ]`, only counted
+entries the *older* side contributed to the union. When *newer* was a strict
+superset of *older* (had everything older had, plus an entry older lacked
+entirely), older contributed nothing, `added` stayed 0, and the write-back
+never fired — older silently never received newer's exclusive entry, with no
+`!!` warning and exit 0. In some runs this printed the self-contradictory
+`MEMORY.md: differs` immediately followed by `Both sides already agree.
+Nothing copied.` The fix adds a second scan over *newer*'s own lines,
+checking each target's presence in *older* at all (a `gap` counter,
+alongside the existing `added` counter), and widens the gate to `[ "$added"
+-gt 0 ] || [ "$gap" -gt 0 ]`. This does not touch the conflict path above —
+a same-target entry with differing wording is still correctly excluded from
+both counters and left for a human. If you ever touch this gate again, read
+that live-checks section first for the fixture recipe and the four
+mutation/coverage cases (two-way gap-plus-conflict in one run, pure-conflict
+must-not-overwrite, non-pointer-line content, and the pre-fix `added`-only
+path standalone) needed to re-prove a fix.
+
 ## Non-flat layout is flagged, not merged
 
 After the main file-by-file walk, the script separately checks both

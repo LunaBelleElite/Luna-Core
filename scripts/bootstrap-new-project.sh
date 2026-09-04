@@ -159,11 +159,15 @@ for f in "$SOURCE"/agents/luna-core-*.md; do
   awk -v proj="${PROJECT_NAME}" -v lcproj="${LC_NAME}" '
     /^>/ { print; next }
     {
+      # This literal filename is deliberately never renamed (see CLAUDE.md);
+      # shield it from the blind luna-core- substring match below, then restore it.
+      gsub(/validate-luna-core-setup\.sh/, "@@VALIDATE_LUNA_CORE_SETUP@@")
       gsub(/luna-core-/, lcproj "-")
       gsub(/<projectname>-/, lcproj "-")
       gsub(/Luna-Core/, proj)
       gsub(/<ProjectName>/, proj)
       gsub(/<projectname>/, proj)
+      gsub(/@@VALIDATE_LUNA_CORE_SETUP@@/, "validate-luna-core-setup.sh")
       print
     }
   ' "$f" > "$DEST/.claude/agents/${new_name}.md"

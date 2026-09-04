@@ -17,6 +17,62 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.1.6.0-dev - 2026-09-03
+
+Large bug fix: `merge-memory.sh`'s `MEMORY.md` union only ever wrote back in
+one direction. Found independently of the two-PC simulation-loop batch
+below — during a routine memory-merge step in an earlier pass — so it gets
+its own version bump rather than folding into that one.
+
+- **Fixed `merge_index()` silently dropping one side's exclusive entries
+  when the other side was a strict superset.** The write-back that copies
+  the unioned `MEMORY.md` pointer lines back to both sides was gated on a
+  counter that only incremented when the *older* side contributed a new
+  entry to the union. If the *newer* side already had everything the older
+  side had, plus an entry the older side lacked entirely, the older side
+  never received that entry — the gate never opened. The run still exited
+  0 with no warning, and in some cases printed `MEMORY.md: differs`
+  immediately followed by the contradictory `Both sides already agree.
+  Nothing copied.` This ran directly against the function's own documented
+  purpose and against `ref/docs/merge-memory.md`'s description of the same
+  union behavior. Fixed by adding a second scan over the newer side's own
+  entries (a `gap` counter, alongside the existing `added` counter) and
+  widening the write-back gate to fire when either counts anything. Does
+  not touch the pre-existing conflict path — same-target entries with
+  differing wording still correctly refuse to auto-resolve.
+
+## ver-0.1.5.0-dev - 2026-09-03
+
+Two real defects found by a two-PC blind onboarding/handoff simulation test
+(cycle 1) and fixed, landing together as one large-bug-fix bump.
+
+- **Fixed `bootstrap-new-project.sh` mangling the one filename it must never
+  rename.** The `awk` rename chain that copies each `agents/luna-core-*.md`
+  template into a new project's `.claude/agents/` (renaming `luna-core-` to
+  `<projectname>-` throughout) was blindly matching the literal,
+  deliberately-never-renamed filename `validate-luna-core-setup.sh`
+  wherever it appeared inside agent body text — two places in
+  `luna-core-docs-writer.md` — turning it into a broken reference like
+  `validate-simtestproject-setup.sh` in every single project ever
+  bootstrapped from this repo. Fixed by shielding that literal filename
+  behind a placeholder token before the rename substitutions run, then
+  restoring it afterward. This is real, shipped corruption of template
+  content across every past bootstrap, not just a documentation gap — the
+  more serious of the two fixes in this batch.
+- **`commands/wake-up.md`'s full sweep now checks for a sibling-clone
+  dependency (e.g. Astrid) and confirms it's actually present.** A new step,
+  3a-ii, reads this project's own `CLAUDE.md` toolkit section for a
+  "Personality & voice" line; if one exists, it clones the sibling fresh at
+  the documented path/branch when the directory doesn't exist yet (the
+  new-machine case) or runs `git -C <path> pull` when it does, then confirms
+  the expected files (e.g. `PERSONALITY.md`/`VOICE.md`) are actually
+  present afterward. Before this fix, wake-up.md never mentioned Astrid at
+  all, so a blind Wake Up session on a genuinely new machine never checked
+  for her — `CLAUDE.md`'s existing `git -C ../Astrid pull` instruction
+  silently assumes the clone is already there, which it never is on a
+  machine that's never worked on this project before. Caught by an actual
+  blind-subagent simulation run that hit exactly this gap.
+
 ## ver-0.1.4.0-dev - 2026-09-03
 
 Large bug fix: the one machine-level path a stranger's AI session is supposed

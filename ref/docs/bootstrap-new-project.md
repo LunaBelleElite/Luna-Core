@@ -150,6 +150,21 @@ forms, so an identifier fragment like `luna-core-docs-writer` becomes
 `testproj-docs-writer` rather than partially colliding with the prose
 substitution.
 
+**One literal filename is shielded from the `luna-core-` substitution before
+it runs.** `validate-luna-core-setup.sh` is a real, permanent filename that
+appears inside agent body text (e.g. twice in `luna-core-docs-writer.md`) and
+must never be renamed — it names Luna-Core's own validator script, which
+stays `validate-luna-core-setup.sh` in every bootstrapped project, not
+`validate-<projectname>-setup.sh`. The blockquote skip above doesn't protect
+it, since it appears in ordinary body text, not a `>` line. Before the
+`gsub(/luna-core-/, ...)` substitution runs, the awk program first swaps the
+literal string `validate-luna-core-setup.sh` for a placeholder token, then
+restores it verbatim after all the rename substitutions complete. Until this
+was fixed, every project ever bootstrapped from this repo got that filename
+silently mangled into something like `validate-testproj-setup.sh` — a
+reference to a script that doesn't exist — wherever it appeared in agent
+body text.
+
 **Only the identifier half of the placeholder is auto-filled.** The lowercase
 `<projectname>` token is filled in everywhere it appears in operative body
 text (descriptions, cross-references between agents), because the answer is

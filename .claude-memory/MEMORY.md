@@ -5,3 +5,4 @@
 - [User's license tier](user_license_tier.md) — Claude Max 5x (personal); dynamically pick best-suited model per task, never a standing default
 - [Claude Code skill stack setup](claude_code_skill_stack_setup.md) — how the skill sources install, the GadaaLabs installer bugs found, and what is actually installed on ASUNA-PC
 - [Fable is manual-only](feedback_fable_manual_only.md) — assistant routes only across Sonnet/Opus, never dispatches an agent on Fable, even on Max/Premium tiers; user invokes Fable themselves
+- [Simulation loop protocol](feedback_simulation_loop_protocol.md) — two-PC blind-agent onboarding/handoff test for Luna-Core; scoped pre-auth to commit/tag/push/merge-main only while a loop runs

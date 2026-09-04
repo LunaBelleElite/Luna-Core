@@ -295,3 +295,135 @@ either continue branch, unlike `checked`, which several branches skip.
 **Recipe, if this needs re-proving:** sandbox as above, single-line conf
 `Bad Regex | git --version | [invalid(`, run, read the last two lines and the
 exit code.
+
+## The literal `validate-luna-core-setup.sh` filename, shielded from the rename gsubs (2026-09-03)
+
+`bootstrap-new-project.sh`'s awk rename chain (`gsub(/luna-core-/, lcproj
+"-")` etc.) runs over every non-blockquote line of each copied agent file. It
+does not distinguish the literal filename `validate-luna-core-setup.sh` — the
+one script CLAUDE.md's own rule says is deliberately never renamed — from any
+other `luna-core-` occurrence, so any agent body text mentioning it by name
+got mangled into e.g. `validate-simtestproj-setup.sh`. Only
+`agents/luna-core-docs-writer.md` contains the literal (two body lines,
+non-blockquote), found by grepping the source templates before bootstrapping,
+not guessed.
+
+**Mutation, driven not assumed.** `git stash`-reverted just the fix (the
+`gsub` shield/restore pair) and re-ran `bootstrap-new-project.sh` into a fresh
+throwaway target: both lines in the copied `docs-writer.md` came out as
+`validate-muttestproj-setup.sh` — the exact bug described. Restoring the fix
+and re-running produces the literal string unchanged on both lines, no
+`@@VALIDATE_LUNA_CORE_SETUP@@` placeholder residue, and the real rename
+(frontmatter `name:`, prose project references, cross-references between the
+four renamed agent files) still fires normally elsewhere — 14
+non-blockquote cross-references to `simtestproj-*` agent names counted across
+the four files. Blockquote lines (`>` prefix, the "rename on clone" template
+notes) are untouched either way, matching the script's pre-existing rule —
+confirmed 5 such lines survive verbatim in the fixture, all containing
+`luna-core-*` unrenamed by design.
+
+**Fixture recipe.** `git init -b dev` a throwaway dir under the system temp
+dir, run `bash scripts/bootstrap-new-project.sh <Luna-Core checkout>
+<throwaway> <ProjectName>`, then grep the copied `.claude/agents/*.md` for
+`validate-.*-setup\.sh` (expect only the literal, unrenamed, on both lines)
+and for `luna-core-` outside blockquote lines (expect zero — anything left
+unrenamed there that isn't the shielded literal is the bug). Full
+`validate-luna-core-setup.sh` run against the resulting fixture also exits 0
+clean, no `MISSING:` lines.
+
+Also ran, same session: `bash scripts/validate-luna-core-setup.sh` against
+the real Luna-Core repo (exit 0, no `MISSING:`) and `bash
+scripts/check-superpowers.sh` (exit 0, both plugin deps OK) — both used here
+as the standing regression check, not as new coverage of their own; see their
+own entries above for what those checks actually probe.
+
+## `merge_index()`'s write-back only fires in one direction (2026-09-03)
+
+**Bug, confirmed live, not yet fixed — this entry documents the reproduction,
+not a fix.** `merge_index(newer, older, dest)` unions `older`'s pointer lines
+into a tmp copy seeded from `newer`, but the write-back to both sides (lines
+188-196) is gated entirely on `added -gt 0`, where `added` only counts entries
+`older` contributed. If `newer` is a strict superset of `older` — has every
+entry `older` has, plus at least one `older` lacks — `older` contributes zero
+new entries, `added` stays 0, and the write-back block never runs. `older`
+never receives `newer`'s exclusive entry. Exit 0, no `!!` line.
+
+**This is worse than a missing feature: it's a false "in sync" report.** The
+script prints `MEMORY.md: differs` (correctly detects the mismatch), then
+immediately below, with nothing else differing, prints `Both sides already
+agree. Nothing copied.` — a direct self-contradiction inside one run's output.
+
+**Measured both directions**, proving it's not one-sided toward local or
+repo, but toward whichever side is timestamp-"newer":
+
+- Local newer, 2 entries (Alpha, Beta) + exclusive Gamma vs. repo's 2
+  (Alpha, Beta): after the run, repo still lacks Gamma. `cmp` reports DIFFER
+  at byte 117 / line 4. Exit 0. Output ends `Both sides already agree.
+  Nothing copied.`
+- Repo newer, 1 entry (Delta) + exclusive Epsilon vs. local's 1 (Delta):
+  after the run, local still lacks Epsilon. `cmp` reports DIFFER at byte 68 /
+  line 3. Exit 0. Same closing line.
+
+**Fixture recipe.** Same skeleton as "The memory index keyed on the wrong
+thing" above (copy `merge-memory.sh` + `lib-claude-home.sh` into a throwaway
+repo root under the system temp dir, `CLAUDE_CONFIG_DIR` pointed at a
+throwaway config dir, `--dry-run` first to read off the exact sanitized
+`LOCAL_DIR` path — do not hand-compute it). The distinguishing ingredient
+here is the *opposite* of that entry's: no genuinely-new entry on the older
+side at all, and no differently-worded duplicate — `newer`'s content is
+`older`'s content plus one line, verbatim. `touch -d` both `MEMORY.md`s (no
+`modified:` frontmatter on an index file, no git history for a throwaway repo
+root, so both sides fall through to mtime) to control which side is "newer".
+
+**What a fix must check**, since this needs re-verifying once patched: not
+just that `added` (or its replacement) is nonzero when it should be, but that
+the write-back path fires whenever the two sides' final unions differ from
+what either side started with — the current gate conflates "older
+contributed something" with "the two sides are now identical," and those are
+only the same condition when `newer` isn't already a superset.
+
+**Fixed and independently re-verified (2026-09-03).** The fix adds a second
+scan loop over `newer`'s own lines, checking each target's presence in
+`older` at all (tracked in a new `gap` counter), and widens the write-back
+gate to `[ "$added" -gt 0 ] || [ "$gap" -gt 0 ]`. Re-ran both original
+fixture directions (local-newer-superset, repo-newer-superset) against the
+patched script: both now converge to byte-identical `MEMORY.md` on both
+sides, exit 0, and the "already agree" self-contradiction is gone — the
+summary line correctly reads `1 file(s) updated; 0 needing a human decision`
+in both cases.
+
+Also constructed four fixtures the implementer's own report didn't already
+cover, independently, all converging correctly:
+
+- **Genuine two-way gap + conflict, 3+ mixed entries, same run.** Local
+  (newer) has `Alpha` (identical wording), `Beta` (local phrasing, conflicts
+  with repo's wording), `LocalOnly` (exclusive). Repo (older) has `Alpha`,
+  `Beta` (repo phrasing), `RepoOnly` (exclusive). Result: `Beta` correctly
+  flagged as a conflict and left as local's wording (not auto-resolved,
+  `needs_attention=1`), while `LocalOnly` and `RepoOnly` both propagate to
+  the other side in the same run — `added` and `gap` both fire together
+  without duplicating or dropping anything. Both sides end up
+  byte-identical: Alpha, Beta (local wording), LocalOnly, RepoOnly, exit 0.
+- **Pure conflict, no other entries — must NOT trigger write-back.** Single
+  target `Omega` on both sides, differently worded, nothing else differs.
+  `added=0` and `gap=0` (the gap loop correctly does not count a
+  differently-worded match as "missing" — presence is checked by target,
+  not exact line), so the write-back gate stays closed: `0 file(s) updated;
+  1 needing a human decision`, and each side's file is untouched — local
+  keeps local wording, repo keeps repo wording. This matters: if the gate
+  had fired here, tmp (seeded from newer) would have silently overwritten
+  older's conflicting wording, defeating "left as-is, reconcile by hand."
+  Confirms the fix didn't accidentally widen the gate too far.
+- **Non-pointer-line content (header, blank line, trailing prose) alongside
+  a genuine gap.** Neither loop's `case` pattern (anchored on `- [`) matches
+  a `# Memory index` header, a blank line, or free-text prose, so they're
+  correctly ignored by both scans and ride along verbatim in the union
+  copy — no false-positive entries, no crash, no duplication.
+- **Re-confirmed the pre-fix-working `added`-only path** (older, by
+  timestamp, holds the exclusive entry) still works standalone: `-> index:
+  added missing entry for (zeta.md)`, converges, exit 0.
+
+`bash scripts/validate-luna-core-setup.sh` also re-run against the real repo
+post-fix: exit 0, no `MISSING:` lines. Open item `merge-index-oneway` in
+`tests/notes/open-items.md` closed on this basis. Fixtures built under the
+session scratchpad and deleted after; nothing committed by this pass.
