@@ -17,6 +17,79 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.2.0.4 - 2026-09-04
+
+Wording addition only: the Wake Up protocol now covers the case where a
+machine has no local copy of the project at all yet, not just a stale one.
+
+- **Why:** the simulation loop found that Wake Up's first step assumed a
+  local checkout already existed — it only covered fetching into one and
+  reading the handoff notes from one. On a genuinely new machine with
+  nothing local at all, there was nothing to fetch into and the handoff
+  notes couldn't be read yet either, since reading them requires the
+  clone to already exist. A test session facing this had to improvise a
+  placement by inferring it from a different machine's leftover clone of
+  a sibling dependency — a real first-ever pickup would have had nothing
+  like that to go on.
+- **Change:** added an explicit step covering the zero-local-copy case,
+  ahead of the existing "check HANDOFF.md for where this publishes"
+  guidance: clone the project first using whatever location this session
+  was actually given to reach it, treat exactly where to place that clone
+  as a per-machine judgment call rather than a hardcoded path (matching
+  how this kit already leaves other placement decisions open), and once
+  the clone exists and `CLAUDE.md` becomes readable, place any sibling-clone
+  dependency it names (e.g. Astrid) as a genuine sibling of wherever the
+  project landed. Nothing about the existing stale-copy handling changed.
+
+## ver-0.2.0.3 - 2026-09-04
+
+Wording clarification only: README.md's Getting Started step 5 now makes
+clear that a subagent carrying out this step must still attempt to ask
+about Astrid, not just a top-level session talking directly with a person.
+
+- **Why:** the simulation loop caught a subagent given this exact step,
+  with the exact same wording, sometimes skip asking entirely — deciding
+  on its own that it was "non-interactive" and jumping straight to the
+  documented fallback (bring her in) without ever attempting to ask, even
+  though its own dispatcher was fully capable of relaying the question to
+  a real person and returning a real answer. A separate test run showed
+  that relay chain working correctly when the subagent did attempt to ask,
+  so the mechanism was never broken — only the wording's silence on
+  subagents let one talk itself out of trying.
+- **Change:** added an explicit clarification, next to the existing "wait
+  on a real answer" sentence, that a subagent's turn ending on the
+  question still counts, because its own dispatcher is the next link
+  toward a real person, not a dead end. Also tightened the fallback's
+  trigger condition from the looser "a fully non-interactive bootstrap run
+  has no way to get a real answer" to concrete evidence no human is
+  anywhere in the loop at all (e.g. explicitly told this is a fully
+  automated/headless run) — being "just a subagent" is never itself that
+  evidence. No change to the underlying policy, which is still
+  opt-out-by-default with a real decline required to skip Astrid.
+
+## ver-0.2.0.2 - 2026-09-04
+
+Wording clarification only: `debrief.md` step 3's "anything uncommitted"
+handoff-note bullet now excludes Debrief's own pending commit/publish
+decision.
+
+- **Why:** the simulation loop's cycle 4 caught a real bug — Debrief writes
+  `HANDOFF.md` before asking for commit permission, so on a project's
+  first-ever commit (or any time the note truthfully says "not committed
+  yet") that sentence ships baked into the very commit that makes it false.
+  Same root cause as the earlier version-staleness fixes: a fact restated
+  in committed prose that the next documented step is guaranteed to
+  invalidate. Wake Up's step 3c already independently checks live git
+  state rather than trusting `HANDOFF.md` for this, so the note was never
+  load-bearing to begin with.
+- **Change:** clarified that the bullet covers genuinely separate
+  uncommitted work still open beyond the session, not this Debrief's own
+  in-flight commit decision. Applied identically to both `commands/debrief.md`
+  (template source) and `.claude/commands/debrief.md` (functional copy) to
+  keep them in sync.
+- Closes open item `debrief-self-stale-handoff-note` in
+  `tests/notes/open-items.md`.
+
 ## ver-0.2.0.1 - 2026-09-04
 
 Wording clarification only: README.md's Getting Started step 5 now spells

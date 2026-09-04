@@ -13,6 +13,21 @@ copy. Fetch/pull from wherever this project's remote actually is — a live
 git remote, or a bundle file — so local `dev` reflects what was actually
 last published.
 
+**If there is no local copy of this project on this machine at all** — not
+stale, genuinely absent — there is nothing to fetch into, and
+`handoff/HANDOFF.md` can't be read yet either, since nothing local exists to
+read it from. Clone the project first, using whatever repo location this
+invocation was actually given to reach the project (however this session
+was pointed at it in the first place). Where to put the clone on this
+machine is a judgment call, not something to hardcode — infer it from this
+machine's own conventions, the same kind of call this kit already leaves
+open elsewhere (e.g. what to name a new project at bootstrap). Once the
+clone exists, `CLAUDE.md` becomes readable — if its "This project's
+toolkit" section names a sibling-clone dependency (e.g. Astrid), place her
+as a genuine sibling of wherever this project ended up, matching the
+relative path that section documents. Then continue with the rest of this
+step, and the rest of the protocol, as normal.
+
 **Look in `handoff/HANDOFF.md` first**, under "Where this project
 publishes". That is the file Debrief maintains and bootstrap always
 creates, so it is the one place guaranteed to exist and to have been

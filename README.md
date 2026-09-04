@@ -60,18 +60,27 @@ You're new here and want to use this kit for your own project:
    question to wait on, not a silent assumption — in an interactive session
    that means asking and letting the turn end there, the same way any
    in-chat question naturally waits for your next reply; only skip the clone
-   if you actually decline.
+   if you actually decline. That still holds when this step is carried out
+   by a subagent rather than a top-level session talking directly with a
+   person: the subagent's turn ending on the question still counts as
+   asking, because its own dispatcher is the next link toward a real
+   person, not a dead end — it must not decide on its own that no answer is
+   reachable just because the work was delegated to it.
    - **If you decline:** nothing is cloned, and the session removes the
      "Personality & voice: Astrid" bullet from your new project's
      freshly-generated `CLAUDE.md` toolkit section, so it doesn't carry a
      dangling reference to a personality it isn't using.
-   - **If you accept — or if a fully non-interactive bootstrap run has no
-     way to get a real answer, in which case bringing her in is the
+   - **If you accept — or if there's concrete evidence no human is anywhere
+     in the loop at all (e.g. explicitly told this is a fully
+     automated/headless run), in which case bringing her in is the
      fallback rather than assuming a decline that was never said** — the
      session clones her as a sibling exactly per that same bullet's own
      instructions (`../<project>`, always the `dev` branch), then confirms
      `PERSONALITY.md` and `VOICE.md` actually landed before reporting done,
-     rather than trusting the clone command's exit code alone.
+     rather than trusting the clone command's exit code alone. Being "just
+     a subagent" is never itself that evidence, since a subagent's
+     dispatcher is very often a real interactive session with a real
+     person on the other end of it.
 
 That's the whole path. Everything below is reference material — what's in
 the kit, why it's shaped the way it is, and how to maintain a Luna-Core
