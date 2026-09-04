@@ -17,6 +17,35 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.2.1.1-dev - 2026-09-04
+
+Closed a real gap in `luna-core-docs-writer`'s own branch-discipline rule:
+`CHANGELOG.md` was treated as a straight byte-copy onto `main` (just strip
+the `-dev` suffix), which let this session's own internal dev-process
+narrative — references to "this session," "the user," specific internal
+agent names, and citations to files that are stripped to placeholders on
+`main` (`tests/notes/*`, `.claude-memory/*`, `ref/docs/*.md` pages) — bleed
+onto `main` verbatim. A stranger cloning `main` would hit dead references
+and be told a private debugging story that isn't theirs to know.
+
+- **Why:** the user pointed out directly that `main` is supposed to be a
+  clean package a new AI can pull into a new project without carrying
+  artifacts of Luna-Core's own development process — and the rule as
+  written didn't actually enforce that for `CHANGELOG.md`, only for
+  `ref/docs/`, `.claude-memory/`, `handoff/`, and `.claude/agents/*.md`.
+- **Change:** `dev`'s `CHANGELOG.md` stays exactly what it always was — the
+  real, detailed history, never rewritten. `main`'s copy is now explicitly a
+  curated rewrite of each entry's text, not a byte-copy: dev-process
+  narrative and dead citations to `main`-stripped paths get cut, while every
+  bit of real technical substance (what changed, the actual mechanism, why,
+  how it was verified) survives in full. This is the same category of
+  divergence the rule already had for `handoff/HANDOFF.md` (a freshly
+  authored note on `main`, not `dev`'s real one), just extended to a file
+  previously treated as an exact copy. Applied retroactively to all 20
+  existing entries on `main` in the same pass, and folded into the merge
+  checklist so every future merge does the rewrite, not just a suffix
+  strip.
+
 ## ver-0.2.1.0-dev - 2026-09-04
 
 Corrected a stale credibility claim in README.md, and added a standing

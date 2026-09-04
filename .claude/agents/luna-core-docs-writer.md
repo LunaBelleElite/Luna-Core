@@ -67,7 +67,8 @@ current and correctly scoped to the branch they're on:
 
 | File(s) | dev | main |
 |---|---|---|
-| `CLAUDE.md`, `README.md`, `CHANGELOG.md` | yes | yes (`main`'s README may carry extra caveats of its own) |
+| `CLAUDE.md`, `README.md` | yes | yes (`main`'s README may carry extra caveats of its own) |
+| `CHANGELOG.md` | yes — the real, detailed history | yes, but **curated per entry**, not a byte-copy — dev-process narrative and dead citations rewritten out, all real substance kept; see below |
 | `ref/docs/*.md` (the pages) | yes | **never** — folder + `ref/docs/.gitkeep` survive, empty |
 | `.claude-memory/` (working memory) | this project's real memory files | **never** — folder + `.gitkeep` survive, empty |
 | `handoff/STATUS.md`, `handoff/HANDOFF.md` | this project's real notes | **never** — replaced by fresh-bootstrap placeholder text |
@@ -130,6 +131,32 @@ So, per path, on `main`:
   flagging them on someone else's clone. Do not carry them over
   unexamined.
 
+- **`CHANGELOG.md`** — not stripped to empty and not byte-copied either:
+  **curated**. `dev`'s copy is the real, detailed history and is never
+  rewritten under this rule — "never rewrite history" governs `dev`'s own
+  copy exactly as it always has. `main`'s copy carries every entry that
+  reaches it, but each entry's *text* is rewritten, not just suffix-
+  stripped, to remove: dev-process narrative that casts this session, the
+  user, or a specific internal agent as an actor in the story ("qa-tester
+  confirmed," "the user decided," "this session found," "showed up three
+  times this session"); citations to any path this table strips to a
+  placeholder on `main` (`tests/notes/*`, `.claude-memory/*`, `ref/docs/*.md`
+  pages, `handoff/*`'s real notes) — either drop the citation if the
+  entry's own prose already carries what matters, or rephrase the point so
+  it doesn't depend on that file existing; and any other framing that only
+  makes sense to someone inside Luna-Core's own development process rather
+  than someone adopting the finished result. What must survive the
+  rewrite, in full: the actual technical substance — what changed, the real
+  mechanism of a bug, why a decision was made, how something was verified,
+  stated in terms that don't require access to internal-only files. This
+  makes `main`'s `CHANGELOG.md` legitimately, permanently different in
+  *form* from `dev`'s — the same category of divergence this list already
+  has for `handoff/HANDOFF.md` (`main` gets a freshly-authored note, not
+  `dev`'s real one), just applied to a file that content-wise still carries
+  every entry, only reworded. See "Versioning & CHANGELOG entries" below
+  for when this rewrite happens, and the merge checklist's step 4 for the
+  mechanics.
+
 If the project's README or CLAUDE.md declares additional working-state
 paths beyond these, treat them the same way: strip the content, keep the
 path.
@@ -157,9 +184,14 @@ remember it correctly). Key points for your job specifically:
   output as entry content. Write for a reader who doesn't know the
   codebase.
 - **At merge-to-main time, don't invent new version numbers.** Since `dev`
-  already assigned them incrementally, publishing to `main` just means
-  stripping the `-dev` suffix from whatever's already there — `main`'s
-  `CHANGELOG.md` should match `dev`'s, minus every `-dev` suffix.
+  already assigned them incrementally, publishing to `main` keeps the same
+  version numbers, minus the `-dev` suffix. But the suffix strip is the
+  *only* mechanical part — `main`'s entry text is a curated rewrite of
+  `dev`'s, not a byte-copy (see "Branch discipline" above): cut dev-process
+  narrative and citations to dev-only paths, keep every bit of real
+  technical substance. `dev`'s own copy of the same entries is never
+  touched by this — it stays the real, detailed history exactly as
+  written.
 - **Tag every version-bearing commit.** Once a commit adding a new
   `CHANGELOG.md` version header is approved, create an annotated tag with
   that exact version string pointing at that commit (`git tag -a
@@ -226,13 +258,22 @@ This is the check that matters most:
    are **rewritten in place**, not removed — to the bootstrap placeholder
    text and to the `agents/*.md` template source respectively. Stage the
    rewritten versions.
-4. In `CHANGELOG.md`, strip the `-dev` suffix from every version header
-   being merged in — don't invent new version numbers (see "Versioning &
-   CHANGELOG entries" above). Verify CLAUDE.md/README.md are also current
-   for what's being published — this is the point a project cloning from
-   `main` will see. Update them if they aren't. `ref/docs/*.md` pages are
-   not part of this check, since they don't publish at all — just confirm
-   the empty folder and its keeper file survived step 3.
+4. In `CHANGELOG.md`, for every version header being merged in: strip the
+   `-dev` suffix (don't invent new version numbers), then rewrite the entry
+   text itself — cut dev-process narrative (this session/the user/a named
+   internal agent as an actor) and citations to any path this file's
+   branch-discipline entry strips to a placeholder on `main` (`tests/notes/*`,
+   `.claude-memory/*`, `ref/docs/*.md` pages, `handoff/*`'s real notes),
+   keeping every bit of real technical substance (see "Versioning &
+   CHANGELOG entries" and "Branch discipline" above). `dev`'s own copy of
+   the same entries is untouched — this rewrite only happens on the text
+   landing on `main`. Spot-check the result with a grep for leftover
+   narrative or dead citations before moving on. Verify CLAUDE.md/README.md
+   are also current for what's being published — this is the point a
+   project cloning from `main` will see. Update them if they aren't.
+   `ref/docs/*.md` pages are not part of this check, since they don't
+   publish at all — just confirm the empty folder and its keeper file
+   survived step 3.
    Then **run `bash scripts/validate-luna-core-setup.sh` against the merged
    working tree and confirm it exits clean.** This is the only thing that
    proves the strip left `main` in a state a stranger's clone can actually
