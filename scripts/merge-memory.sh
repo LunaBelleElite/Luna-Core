@@ -149,7 +149,7 @@ copy() { # copy <src> <dst> <reason>
 
 merge_index() {
   local newer="$1" older="$2" dest="$3"
-  local tmp added=0
+  local tmp added=0 gap=0
   tmp="$(mktemp)"
   cp "$newer" "$tmp"
 
@@ -185,7 +185,28 @@ merge_index() {
     esac
   done < "$older"
 
-  if [ "$added" -gt 0 ]; then
+  # `added` only counts entries OLDER contributed to the union. If NEWER is a
+  # strict superset of older -- has every entry older has, plus at least one
+  # older lacks entirely -- older contributes nothing, added stays 0, and the
+  # write-back below would never fire even though older is still missing that
+  # entry. Scan newer's own (unmodified) lines for any target older doesn't
+  # have AT ALL. A target older has under different wording is a conflict,
+  # left alone by the loop above, and must stay excluded here too -- this scan
+  # only catches targets missing from older entirely, never a wording dispute.
+  while IFS= read -r line; do
+    case "$line" in
+      '- ['*'('*')'*)
+        target="$(printf '%s' "$line" | sed -n 's/^- \[[^]]*\](\([^)]*\)).*/\1/p')"
+        [ -z "$target" ] && continue
+        if ! grep -qF -- "($target)" "$older"; then
+          echo "  -> index: ($target) missing on the other side -- propagating so both stay in sync"
+          gap=$((gap + 1))
+        fi
+        ;;
+    esac
+  done < "$newer"
+
+  if [ "$added" -gt 0 ] || [ "$gap" -gt 0 ]; then
     changed=$((changed + 1))
     if [ "$DRY_RUN" -eq 0 ]; then
       cp "$tmp" "$dest"

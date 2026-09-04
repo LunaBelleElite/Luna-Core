@@ -113,7 +113,7 @@ Run `/new-project`, or do it by hand:
 
 ```bash
 DC_SRC="$(mktemp -d)/luna-core-src"
-git clone "@@ORIGIN_URL@@" "$DC_SRC"
+git clone -b main "@@ORIGIN_URL@@" "$DC_SRC"
 cd <new-project-dir> && git init -b dev          # if it isn't a repo yet
 bash "$DC_SRC/scripts/bootstrap-new-project.sh" \
      "$DC_SRC" <new-project-dir> <ProjectName>
@@ -205,15 +205,14 @@ and agent identifiers.
 
 ```bash
 DC_SRC="$(mktemp -d)/luna-core-src"
-git clone "@@ORIGIN_URL@@" "$DC_SRC"
+git clone -b main "@@ORIGIN_URL@@" "$DC_SRC"
 ```
 
 This is a read-only source to copy *from*. It is not the new project, and the
 new project does not inherit Luna-Core's git history.
 
 If the clone fails, stop and tell the user rather than improvising — the
-likeliest causes are no network, or this machine not being authenticated to a
-private repository.
+likeliest cause is no network.
 
 ## 3. Make sure the destination is an initialized repo on `dev`
 
