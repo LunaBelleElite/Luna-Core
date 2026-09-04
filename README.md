@@ -12,9 +12,9 @@ it into a brand-new project in two commands.
 > rough edges, and see "Status," below, before assuming any given piece is
 > settled.
 
-**Status:** actively under development as of **2026-09-03** — this is not a
-finished, stable release. Things here can and do change. If you're adopting
-this, clone the `main` branch specifically, not `dev`: `main` is the settled
+**Status:** actively under development as of **2026-09-03** — not a
+finished, stable release, and it changes often. If you're adopting this,
+clone the `main` branch specifically, not `dev`: `main` is the settled
 snapshot meant for exactly this; `dev` is where active work happens and can
 be mid-change at any given moment, including content specific to this
 project's own history that a new adopter doesn't need. **`main` itself is
@@ -117,12 +117,11 @@ saying so — keep that note on any new agent added here.
   `handoff/`, and `tests/` working areas. Invoke it on demand for a docs
   pass, and always before a commit to `dev` or a merge into `main` — it
   updates the right files and enforces which *content* is allowed on which
-  branch. Not "these paths never reach `main`": every one of `ref/docs/`,
-  `.claude-memory/`, `handoff/`, `.claude/agents/*.md`, and `tests/`
-  survives on `main` — the *path*, since `CLAUDE.md` and the setup validator
-  both expect it to exist — carrying placeholder or template content instead
-  of this project's own real, accumulated, or machine-specific working
-  state, which stays on `dev`.
+  branch. `ref/docs/`, `.claude-memory/`, `handoff/`, `.claude/agents/*.md`,
+  and `tests/` all survive on `main` as *paths* — `CLAUDE.md` and the setup
+  validator both expect them to exist — but carry placeholder or template
+  content there instead of this project's own real, accumulated, or
+  machine-specific working state, which stays on `dev`.
 - `luna-core-research` — a read-only research specialist for multi-round,
   open-ended investigation. Invoke it instead of researching in the main
   conversation, which permanently bloats history that gets re-read every later
@@ -131,20 +130,17 @@ saying so — keep that note on any new agent added here.
   docs-writer.
 - `luna-core-qa-tester` — writes and extends tests, designs edge-case
   checklists, and keeps a running log of surprising behaviour so coverage
-  accumulates across sessions. The `agents/` copy is a template that
-  deliberately leaves its `## Stack` block and `<projectname>`/`<directory>`
-  placeholders blank, for a new project to fill in when it bootstraps from
-  Luna-Core; the functional copy in `.claude/agents/` has all of them filled
-  in for Luna-Core itself and is fully usable today.
+  accumulates across sessions. Its `agents/` template leaves `## Stack` and
+  the `<projectname>`/`<directory>` placeholders blank for a new project to
+  fill in at bootstrap; Luna-Core's own `.claude/agents/` copy is filled in
+  and fully usable today (see "Still needs manual attention," below).
 - `luna-core-implementer` — implements a task test-first: the failing test
   before the implementation, every pin proved by deliberately breaking the
   guarded code with the red count predicted beforehand, and no silently weakened
   pins. Reports what it *drove* versus what it merely *inspected*, and never
   commits. Split into a portable Part One (the method — keep verbatim when
-  cloning) and a fill-in Part Two (repo path, build command, suite names). As
-  with qa-tester, the `agents/` template leaves Part Two blank for a new
-  project to fill in at bootstrap; the `.claude/agents/` functional copy has
-  it filled in for Luna-Core itself and is fully usable today.
+  cloning) and a fill-in Part Two (repo path, build command, suite names),
+  left blank in the template the same way as qa-tester's placeholders above.
 
 **Still needs manual attention after bootstrap:**
 

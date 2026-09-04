@@ -17,6 +17,19 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.1.6.2-dev - 2026-09-04
+
+Doc-only change: a wordiness/concision trim on README.md and on this
+CHANGELOG.md itself. No feature or behavior change — substance (bug
+mechanisms, measured numbers, caveats) was deliberately preserved
+throughout.
+
+- **README.md** — collapsed a three-way restatement of the same point down
+  to one, dropped a straw-man negation, and merged two sentences that were
+  saying the same thing twice.
+- **CHANGELOG.md** — trimmed two closing-sentence restatements that
+  repeated what their entry had already said.
+
 ## ver-0.1.6.1-dev - 2026-09-03
 
 Small bug fix: the functional `/wake-up` command file had fallen out of
@@ -72,9 +85,8 @@ Two real defects found by a two-PC blind onboarding/handoff simulation test
   `validate-simtestproject-setup.sh` in every single project ever
   bootstrapped from this repo. Fixed by shielding that literal filename
   behind a placeholder token before the rename substitutions run, then
-  restoring it afterward. This is real, shipped corruption of template
-  content across every past bootstrap, not just a documentation gap — the
-  more serious of the two fixes in this batch.
+  restoring it afterward. The more serious of the two fixes in this batch —
+  real, shipped corruption, not just a documentation gap.
 - **`commands/wake-up.md`'s full sweep now checks for a sibling-clone
   dependency (e.g. Astrid) and confirms it's actually present.** A new step,
   3a-ii, reads this project's own `CLAUDE.md` toolkit section for a
@@ -314,9 +326,9 @@ the starting commit.
   a single index entry; once collapsed, the file that lost the collision had
   it silently erased from the side that still held it, because a nonzero
   `added` count writes the merged union back to both sides. Exit code 0,
-  message "1 file(s) updated" — no error anywhere. This is the most serious
-  fix in this batch: the one tool whose entire purpose is not losing memory
-  was capable of losing it without a trace. Fixed by anchoring the match at
+  message "1 file(s) updated" — no error anywhere. The most serious fix in
+  this batch: exactly the failure mode this tool exists to prevent. Fixed
+  by anchoring the match at
   the start of the line so it reads the bracketed link's actual target
   rather than whatever parenthetical happens to come last.
 - **Fixed a false "Updated" from `install-global-entrypoint.sh` on a CRLF
