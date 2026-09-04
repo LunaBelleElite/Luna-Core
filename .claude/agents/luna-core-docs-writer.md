@@ -68,7 +68,7 @@ current and correctly scoped to the branch they're on:
 | File(s) | dev | main |
 |---|---|---|
 | `CLAUDE.md`, `README.md` | yes | yes (`main`'s README may carry extra caveats of its own) |
-| `CHANGELOG.md` | yes — the real, detailed history | yes, but **curated per entry**, not a byte-copy — dev-process narrative and dead citations rewritten out, all real substance kept; see below |
+| `CHANGELOG.md` | yes — the real, detailed history | yes, but reduced to the "Versioning scheme" section plus **one** version header (no entry body) — replaced outright at each merge, never accumulated; see below |
 | `ref/docs/*.md` (the pages) | yes | **never** — folder + `ref/docs/.gitkeep` survive, empty |
 | `.claude-memory/` (working memory) | this project's real memory files | **never** — folder + `.gitkeep` survive, empty |
 | `handoff/STATUS.md`, `handoff/HANDOFF.md` | this project's real notes | **never** — replaced by fresh-bootstrap placeholder text |
@@ -131,30 +131,26 @@ So, per path, on `main`:
   flagging them on someone else's clone. Do not carry them over
   unexamined.
 
-- **`CHANGELOG.md`** — not stripped to empty and not byte-copied either:
-  **curated**. `dev`'s copy is the real, detailed history and is never
-  rewritten under this rule — "never rewrite history" governs `dev`'s own
-  copy exactly as it always has. `main`'s copy carries every entry that
-  reaches it, but each entry's *text* is rewritten, not just suffix-
-  stripped, to remove: dev-process narrative that casts this session, the
-  user, or a specific internal agent as an actor in the story ("qa-tester
-  confirmed," "the user decided," "this session found," "showed up three
-  times this session"); citations to any path this table strips to a
-  placeholder on `main` (`tests/notes/*`, `.claude-memory/*`, `ref/docs/*.md`
-  pages, `handoff/*`'s real notes) — either drop the citation if the
-  entry's own prose already carries what matters, or rephrase the point so
-  it doesn't depend on that file existing; and any other framing that only
-  makes sense to someone inside Luna-Core's own development process rather
-  than someone adopting the finished result. What must survive the
-  rewrite, in full: the actual technical substance — what changed, the real
-  mechanism of a bug, why a decision was made, how something was verified,
-  stated in terms that don't require access to internal-only files. This
-  makes `main`'s `CHANGELOG.md` legitimately, permanently different in
-  *form* from `dev`'s — the same category of divergence this list already
-  has for `handoff/HANDOFF.md` (`main` gets a freshly-authored note, not
-  `dev`'s real one), just applied to a file that content-wise still carries
-  every entry, only reworded. See "Versioning & CHANGELOG entries" below
-  for when this rewrite happens, and the merge checklist's step 4 for the
+- **`CHANGELOG.md`** — not stripped to empty, and not carrying `main`'s own
+  accumulated history either: reduced to the "Versioning scheme" section
+  (unchanged boilerplate, copied from `CLAUDE.md`) plus exactly **one**
+  version header, with no entry body — just the header line and a short
+  note saying this is `main`'s settled snapshot at this version, and that
+  the real, detailed development history lives on this project's `dev`
+  branch's own `CHANGELOG.md`. That header's version number is always
+  `dev`'s current version with the `-dev` suffix stripped, preserving the
+  existing "`dev` and `main` carry the exact same version number in
+  lockstep" rule. `dev`'s copy is never touched by this — it stays the
+  real, full history, every entry, forever, exactly as written. At each
+  merge, `main`'s single header is **replaced outright** with whatever
+  `dev`'s current stripped version is — not accumulated alongside the
+  previous header, so `main` never grows a visible history of its own,
+  curated or otherwise. This is a general rule every project bootstrapped
+  from this kit inherits, not a Luna-Core-specific carve-out: any project
+  with a `dev`/`main` split will eventually face the same "how much
+  history reaches `main`" question once it has any real history of its
+  own to accumulate. See "Versioning & CHANGELOG entries" below for when
+  this replacement happens, and the merge checklist's step 4 for the
   mechanics.
 
 If the project's README or CLAUDE.md declares additional working-state
@@ -183,15 +179,17 @@ remember it correctly). Key points for your job specifically:
   Never include literal shell commands, code snippets, or raw command
   output as entry content. Write for a reader who doesn't know the
   codebase.
-- **At merge-to-main time, don't invent new version numbers.** Since `dev`
-  already assigned them incrementally, publishing to `main` keeps the same
-  version numbers, minus the `-dev` suffix. But the suffix strip is the
-  *only* mechanical part — `main`'s entry text is a curated rewrite of
-  `dev`'s, not a byte-copy (see "Branch discipline" above): cut dev-process
-  narrative and citations to dev-only paths, keep every bit of real
-  technical substance. `dev`'s own copy of the same entries is never
-  touched by this — it stays the real, detailed history exactly as
-  written.
+- **At merge-to-main time, don't invent a version number — and don't carry
+  `dev`'s entries over either.** `main`'s `CHANGELOG.md` never accumulates
+  a visible history of its own (see "Branch discipline" above): it keeps
+  only the "Versioning scheme" section plus a single version header, with
+  no entry body beyond a short note pointing to `dev` for the real
+  history. At each merge, replace that one header outright with `dev`'s
+  current version, suffix stripped — don't append it alongside the
+  previous header, and don't pick a number that doesn't match `dev`'s
+  current one. `dev`'s own copy of the same entries is never touched by
+  this — it stays the real, detailed history exactly as written, every
+  entry, forever.
 - **Tag every version-bearing commit.** Once a commit adding a new
   `CHANGELOG.md` version header is approved, create an annotated tag with
   that exact version string pointing at that commit (`git tag -a
@@ -258,22 +256,18 @@ This is the check that matters most:
    are **rewritten in place**, not removed — to the bootstrap placeholder
    text and to the `agents/*.md` template source respectively. Stage the
    rewritten versions.
-4. In `CHANGELOG.md`, for every version header being merged in: strip the
-   `-dev` suffix (don't invent new version numbers), then rewrite the entry
-   text itself — cut dev-process narrative (this session/the user/a named
-   internal agent as an actor) and citations to any path this file's
-   branch-discipline entry strips to a placeholder on `main` (`tests/notes/*`,
-   `.claude-memory/*`, `ref/docs/*.md` pages, `handoff/*`'s real notes),
-   keeping every bit of real technical substance (see "Versioning &
-   CHANGELOG entries" and "Branch discipline" above). `dev`'s own copy of
-   the same entries is untouched — this rewrite only happens on the text
-   landing on `main`. Spot-check the result with a grep for leftover
-   narrative or dead citations before moving on. Verify CLAUDE.md/README.md
-   are also current for what's being published — this is the point a
-   project cloning from `main` will see. Update them if they aren't.
-   `ref/docs/*.md` pages are not part of this check, since they don't
-   publish at all — just confirm the empty folder and its keeper file
-   survived step 3.
+4. In `CHANGELOG.md`, replace `main`'s single version header outright:
+   take `dev`'s current version, strip the `-dev` suffix, and write it as
+   `main`'s only header, with a short note underneath — no entry body —
+   saying this is `main`'s settled snapshot at this version and that the
+   full development history lives on `dev`'s own `CHANGELOG.md`. Delete
+   whatever header and note were there before; don't accumulate it
+   alongside them. Leave the "Versioning scheme" section above it
+   untouched. Verify CLAUDE.md/README.md are also current for what's
+   being published — this is the point a project cloning from `main` will
+   see. Update them if they aren't. `ref/docs/*.md` pages are not part of
+   this check, since they don't publish at all — just confirm the empty
+   folder and its keeper file survived step 3.
    Then **run `bash scripts/validate-luna-core-setup.sh` against the merged
    working tree and confirm it exits clean.** This is the only thing that
    proves the strip left `main` in a state a stranger's clone can actually

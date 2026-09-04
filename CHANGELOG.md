@@ -17,6 +17,27 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.2.1.2-dev - 2026-09-04
+
+Corrected the previous entry's fix: `main`'s `CHANGELOG.md` shouldn't carry
+Luna-Core's own accumulated history at all, curated or not.
+
+- **Why:** the last entry replaced a byte-copy with a per-entry curated
+  rewrite, but the user clarified that's still too much — `main` is meant
+  to be a clean package, not a project with a long visible history behind
+  it, no matter how the wording is cleaned up.
+- **Change:** `main`'s `CHANGELOG.md` now keeps only the "Versioning
+  scheme" section plus exactly one version header, with no entry body —
+  just a short note that this is `main`'s settled snapshot at this
+  version, with the real, detailed history living on `dev`. That header's
+  version always matches `dev`'s current version (suffix stripped),
+  preserving the existing dev/main lockstep rule. Replaced outright at
+  each merge, never accumulated. `dev`'s own `CHANGELOG.md` is unaffected
+  — same as before, the real, full history, every entry, forever. This is
+  a general rule every bootstrapped project inherits, not a Luna-Core-only
+  carve-out. Applied retroactively: `main`'s CHANGELOG.md dropped from 20
+  entries down to one.
+
 ## ver-0.2.1.1-dev - 2026-09-04
 
 Closed a real gap in `luna-core-docs-writer`'s own branch-discipline rule:
