@@ -12,19 +12,16 @@ it into a brand-new project in two commands.
 > rough edges, and see "Status," below, before assuming any given piece is
 > settled.
 
-**Status:** actively under development as of **2026-09-03** — this is not a
-finished, stable release. Things here can and do change. This branch, `main`,
-is the settled snapshot meant for adopting; `dev` is where active work
-happens and can be mid-change at any given moment, including content
-specific to this project's own history that a new adopter doesn't need.
-
-> **Read this before you rely on it.** `main` being the settled snapshot
-> does not mean it has been proven. It has never been run through an actual
-> onboarding simulation — a fresh clone, a fresh AI session, followed start
-> to finish by someone who is not its author — so nothing here is verified
-> beyond the author's own machine. It is a very rough build. Treat every
-> instruction below as a first draft rather than a tested procedure, expect
-> rough edges, and budget time to adjust things as you go.
+**Status:** actively under development as of **2026-09-03** — not a
+finished, stable release, and it changes often. If you're adopting this,
+clone the `main` branch specifically, not `dev`: `main` is the settled
+snapshot meant for exactly this; `dev` is where active work happens and can
+be mid-change at any given moment, including content specific to this
+project's own history that a new adopter doesn't need. **`main` itself is
+still a very rough build** — it exists, but it has not yet been run through
+an actual onboarding simulation (a fresh clone, a fresh AI session, start to
+finish, checked by someone who isn't its author). If you're bringing it into
+a new project, budget time for it to need adjustment.
 
 ## Getting started
 
@@ -55,10 +52,24 @@ You're new here and want to use this kit for your own project:
    did.
 4. **Fill in the three things bootstrap can't fill in for you** — see "Still
    needs manual attention after bootstrap," below.
-5. **Optional: her voice and personality.** This kit's agents and protocols
-   don't require it, but if you want the same AI personality this project
-   was itself developed with, see the "Astrid" bullet in your new project's
-   `CLAUDE.md` toolkit section for where to get her and how she works.
+5. **Astrid, brought in by default.** Right after bootstrap finishes, the
+   session introduces her: a short blurb — she's the personality/voice layer
+   this kit's agents and protocols were themselves developed with, and none
+   of them require her — states plainly that she'll be brought in unless you
+   say otherwise, and asks you directly whether you want her. This is a real
+   question to wait on, not a silent assumption; only skip the clone if you
+   actually decline.
+   - **If you decline:** nothing is cloned, and the session removes the
+     "Personality & voice: Astrid" bullet from your new project's
+     freshly-generated `CLAUDE.md` toolkit section, so it doesn't carry a
+     dangling reference to a personality it isn't using.
+   - **If you accept — or if a fully non-interactive bootstrap run has no
+     way to get a real answer, in which case bringing her in is the
+     fallback rather than assuming a decline that was never said** — the
+     session clones her as a sibling exactly per that same bullet's own
+     instructions (`../<project>`, always the `dev` branch), then confirms
+     `PERSONALITY.md` and `VOICE.md` actually landed before reporting done,
+     rather than trusting the clone command's exit code alone.
 
 That's the whole path. Everything below is reference material — what's in
 the kit, why it's shaped the way it is, and how to maintain a Luna-Core
@@ -120,12 +131,11 @@ saying so — keep that note on any new agent added here.
   `handoff/`, and `tests/` working areas. Invoke it on demand for a docs
   pass, and always before a commit to `dev` or a merge into `main` — it
   updates the right files and enforces which *content* is allowed on which
-  branch. Not "these paths never reach `main`": every one of `ref/docs/`,
-  `.claude-memory/`, `handoff/`, `.claude/agents/*.md`, and `tests/`
-  survives on `main` — the *path*, since `CLAUDE.md` and the setup validator
-  both expect it to exist — carrying placeholder or template content instead
-  of this project's own real, accumulated, or machine-specific working
-  state, which stays on `dev`.
+  branch. `ref/docs/`, `.claude-memory/`, `handoff/`, `.claude/agents/*.md`,
+  and `tests/` all survive on `main` as *paths* — `CLAUDE.md` and the setup
+  validator both expect them to exist — but carry placeholder or template
+  content there instead of this project's own real, accumulated, or
+  machine-specific working state, which stays on `dev`.
 - `luna-core-research` — a read-only research specialist for multi-round,
   open-ended investigation. Invoke it instead of researching in the main
   conversation, which permanently bloats history that gets re-read every later
@@ -134,20 +144,17 @@ saying so — keep that note on any new agent added here.
   docs-writer.
 - `luna-core-qa-tester` — writes and extends tests, designs edge-case
   checklists, and keeps a running log of surprising behaviour so coverage
-  accumulates across sessions. The `agents/` copy is a template that
-  deliberately leaves its `## Stack` block and `<projectname>`/`<directory>`
-  placeholders blank, for a new project to fill in when it bootstraps from
-  Luna-Core; the functional copy in `.claude/agents/` has all of them filled
-  in for Luna-Core itself and is fully usable today.
+  accumulates across sessions. Its `agents/` template leaves `## Stack` and
+  the `<projectname>`/`<directory>` placeholders blank for a new project to
+  fill in at bootstrap; Luna-Core's own `.claude/agents/` copy is filled in
+  and fully usable today (see "Still needs manual attention," below).
 - `luna-core-implementer` — implements a task test-first: the failing test
   before the implementation, every pin proved by deliberately breaking the
   guarded code with the red count predicted beforehand, and no silently weakened
   pins. Reports what it *drove* versus what it merely *inspected*, and never
   commits. Split into a portable Part One (the method — keep verbatim when
-  cloning) and a fill-in Part Two (repo path, build command, suite names). As
-  with qa-tester, the `agents/` template leaves Part Two blank for a new
-  project to fill in at bootstrap; the `.claude/agents/` functional copy has
-  it filled in for Luna-Core itself and is fully usable today.
+  cloning) and a fill-in Part Two (repo path, build command, suite names),
+  left blank in the template the same way as qa-tester's placeholders above.
 
 **Still needs manual attention after bootstrap:**
 

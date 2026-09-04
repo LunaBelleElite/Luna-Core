@@ -17,6 +17,78 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.2.0.0 - 2026-09-04
+
+Policy change: Astrid (the personality/voice layer) is now brought in by
+default when bootstrapping a new project, instead of purely opt-in.
+
+- **Why:** a simulation-loop test this session ran a blind fresh bootstrap
+  through README.md's existing Getting Started flow, and `luna-core-qa-tester`
+  confirmed Astrid never gets adopted unless a user proactively asks for
+  her — exactly what the old wording specified. That was correct behavior
+  under the old policy, but the user decided the policy itself should flip:
+  most people bootstrapping a project want the same personality this kit was
+  itself developed with, and shouldn't have to already know to ask for it.
+- **New default:** README.md's Getting Started step 5 now has the session
+  introduce Astrid right after bootstrap finishes — a short blurb on what
+  she is, a plain statement that she'll be brought in unless the user says
+  otherwise, and a direct question the session waits on for a real answer.
+  Declining skips the clone and removes the "Personality & voice: Astrid"
+  bullet from the new project's generated `CLAUDE.md`, so an opted-out
+  project doesn't carry a dangling reference. Accepting — or defaulting,
+  only when no interactive answer is possible at all — clones her as a
+  sibling exactly as that bullet already describes, and now also confirms
+  `PERSONALITY.md`/`VOICE.md` actually landed rather than trusting the
+  clone command's exit code.
+- **Unchanged:** `scripts/bootstrap-new-project.sh` itself still
+  unconditionally generates the descriptive Astrid paragraph in every new
+  project's `CLAUDE.md` toolkit section — that text is harmless reference
+  material with no side effect on its own. The clone-or-not decision and
+  the conditional bullet removal both happen as session-level follow-up
+  steps per README's instructions, not inside the script.
+
+## ver-0.1.6.3 - 2026-09-04
+
+Doc-only fix: CLAUDE.md's "This project's toolkit" section no longer
+hardcodes the current version number in prose.
+
+- **Why:** versioning here is immediate — every commit-worthy change gets
+  its own new CHANGELOG.md version header right away, per this file's own
+  "Versioning & CHANGELOG entries" rules. A line stating "currently
+  ver-X" in CLAUDE.md therefore went stale on essentially every commit,
+  and had already needed manual re-syncing more than once.
+- **Root cause:** this line had drifted from a pattern that was already
+  correct elsewhere in this same repo. `scripts/bootstrap-new-project.sh`
+  generates this exact toolkit section for every other project bootstrapped
+  from Luna-Core, and its own template line reads "started at ver-X" —
+  a permanent historical fact — rather than "currently ver-X." Luna-Core's
+  own self-hosted CLAUDE.md had deviated from that correct template
+  wording at some point in its history; nothing else needed to change.
+- **Fix:** reworded the line to "started at `ver-0.1.0.0-dev`" (Luna-Core's
+  actual first CHANGELOG.md entry), deferring "what's the current version"
+  to CHANGELOG.md — the real single source of truth — instead of
+  duplicating a number that changes constantly. Checked README.md and the
+  rest of CLAUDE.md for any other instance of this same hardcoded-current-
+  version pattern; none were found (CLAUDE.md's other `ver-0...` mentions
+  are the versioning scheme's own generic example numbers, not claims
+  about the current version, so they were left alone).
+- **This line should never need touching again on a routine version
+  bump.** A future session should not "fix" it back to a hardcoded
+  current-version number.
+
+## ver-0.1.6.2 - 2026-09-04
+
+Doc-only change: a wordiness/concision trim on README.md and on this
+CHANGELOG.md itself. No feature or behavior change — substance (bug
+mechanisms, measured numbers, caveats) was deliberately preserved
+throughout.
+
+- **README.md** — collapsed a three-way restatement of the same point down
+  to one, dropped a straw-man negation, and merged two sentences that were
+  saying the same thing twice.
+- **CHANGELOG.md** — trimmed two closing-sentence restatements that
+  repeated what their entry had already said.
+
 ## ver-0.1.6.1 - 2026-09-03
 
 Small bug fix: the functional `/wake-up` command file had fallen out of
@@ -72,9 +144,8 @@ Two real defects found by a two-PC blind onboarding/handoff simulation test
   `validate-simtestproject-setup.sh` in every single project ever
   bootstrapped from this repo. Fixed by shielding that literal filename
   behind a placeholder token before the rename substitutions run, then
-  restoring it afterward. This is real, shipped corruption of template
-  content across every past bootstrap, not just a documentation gap — the
-  more serious of the two fixes in this batch.
+  restoring it afterward. The more serious of the two fixes in this batch —
+  real, shipped corruption, not just a documentation gap.
 - **`commands/wake-up.md`'s full sweep now checks for a sibling-clone
   dependency (e.g. Astrid) and confirms it's actually present.** A new step,
   3a-ii, reads this project's own `CLAUDE.md` toolkit section for a
@@ -314,9 +385,9 @@ the starting commit.
   a single index entry; once collapsed, the file that lost the collision had
   it silently erased from the side that still held it, because a nonzero
   `added` count writes the merged union back to both sides. Exit code 0,
-  message "1 file(s) updated" — no error anywhere. This is the most serious
-  fix in this batch: the one tool whose entire purpose is not losing memory
-  was capable of losing it without a trace. Fixed by anchoring the match at
+  message "1 file(s) updated" — no error anywhere. The most serious fix in
+  this batch: exactly the failure mode this tool exists to prevent. Fixed
+  by anchoring the match at
   the start of the line so it reads the bracketed link's actual target
   rather than whatever parenthetical happens to come last.
 - **Fixed a false "Updated" from `install-global-entrypoint.sh` on a CRLF
