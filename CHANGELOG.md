@@ -24,19 +24,18 @@ self-check to catch this whole class of bug going forward.
 
 - **Why:** README's opening caveat said `main`'s onboarding path "has not
   yet been run through an actual onboarding simulation" — true when it
-  was written, but a real two-PC blind simulation campaign ran tonight
-  (four cycles, converging on two clean cycles in a row, each
-  independently verified) and made the sentence false without anyone
-  updating it. The same shape of bug showed up three other times this
-  session — two hardcoded version numbers left behind after a bump, and
-  Debrief's own handoff note going stale the moment the next session
-  touched it — all a sentence stating something as currently true that's
-  guaranteed to go stale the moment reality moves past it. `main`'s own
-  copy of `handoff/HANDOFF.md` carried the same stale claim in its
-  "Current state" section, written there by hand during an earlier merge
-  with no template backing it, so the next merge had nothing to correct
-  it from.
-- **Change:** rewrote the README caveat to reflect the real simulation
+  was written, but real onboarding testing across multiple runs
+  (converging on two clean runs in a row, each independently verified)
+  later made the sentence false without anyone updating it. The same
+  shape of bug showed up in three other places — two hardcoded version
+  numbers left behind after a bump, and Debrief's own handoff note going
+  stale the moment a later session touched it — all a sentence stating
+  something as currently true that's guaranteed to go stale the moment
+  reality moves past it. `main`'s own copy of `handoff/HANDOFF.md`
+  carried the same stale claim in its "Current state" section, written
+  there by hand during an earlier merge with no template backing it, so
+  the next merge had nothing to correct it from.
+- **Change:** rewrote the README caveat to reflect the real testing
   history while staying honest that the project is still young and
   actively changing. Added a carve-out to `luna-core-docs-writer`'s
   branch discipline (both the portable template and the functional copy)
@@ -54,20 +53,19 @@ self-check to catch this whole class of bug going forward.
 Wording addition only: the Wake Up protocol now covers the case where a
 machine has no local copy of the project at all yet, not just a stale one.
 
-- **Why:** the simulation loop found that Wake Up's first step assumed a
-  local checkout already existed — it only covered fetching into one and
+- **Why:** testing found that Wake Up's first step assumed a local
+  checkout already existed — it only covered fetching into one and
   reading the handoff notes from one. On a genuinely new machine with
   nothing local at all, there was nothing to fetch into and the handoff
   notes couldn't be read yet either, since reading them requires the
-  clone to already exist. A test session facing this had to improvise a
-  placement by inferring it from a different machine's leftover clone of
-  a sibling dependency — a real first-ever pickup would have had nothing
-  like that to go on.
+  clone to already exist. A real first-ever pickup on a brand-new machine
+  would have nothing to infer a placement from — no leftover clone of
+  anything, no notes yet readable.
 - **Change:** added an explicit step covering the zero-local-copy case,
   ahead of the existing "check HANDOFF.md for where this publishes"
-  guidance: clone the project first using whatever location this session
-  was actually given to reach it, treat exactly where to place that clone
-  as a per-machine judgment call rather than a hardcoded path (matching
+  guidance: clone the project first using whatever location the current
+  session was actually given to reach it, treat exactly where to place
+  that clone as a per-machine judgment call rather than a hardcoded path (matching
   how this kit already leaves other placement decisions open), and once
   the clone exists and `CLAUDE.md` becomes readable, place any sibling-clone
   dependency it names (e.g. Astrid) as a genuine sibling of wherever the
@@ -79,15 +77,15 @@ Wording clarification only: README.md's Getting Started step 5 now makes
 clear that a subagent carrying out this step must still attempt to ask
 about Astrid, not just a top-level session talking directly with a person.
 
-- **Why:** the simulation loop caught a subagent given this exact step,
-  with the exact same wording, sometimes skip asking entirely — deciding
-  on its own that it was "non-interactive" and jumping straight to the
-  documented fallback (bring her in) without ever attempting to ask, even
-  though its own dispatcher was fully capable of relaying the question to
-  a real person and returning a real answer. A separate test run showed
-  that relay chain working correctly when the subagent did attempt to ask,
-  so the mechanism was never broken — only the wording's silence on
-  subagents let one talk itself out of trying.
+- **Why:** testing caught a subagent given this exact step, with the exact
+  same wording, sometimes skip asking entirely — deciding on its own that
+  it was "non-interactive" and jumping straight to the documented fallback
+  (bring her in) without ever attempting to ask, even though its own
+  dispatcher was fully capable of relaying the question to a real person
+  and returning a real answer. A separate run showed that relay chain
+  working correctly when the subagent did attempt to ask, so the mechanism
+  was never broken — only the wording's silence on subagents let one talk
+  itself out of trying.
 - **Change:** added an explicit clarification, next to the existing "wait
   on a real answer" sentence, that a subagent's turn ending on the
   question still counts, because its own dispatcher is the next link
@@ -105,53 +103,49 @@ Wording clarification only: `debrief.md` step 3's "anything uncommitted"
 handoff-note bullet now excludes Debrief's own pending commit/publish
 decision.
 
-- **Why:** the simulation loop's cycle 4 caught a real bug — Debrief writes
-  `HANDOFF.md` before asking for commit permission, so on a project's
-  first-ever commit (or any time the note truthfully says "not committed
-  yet") that sentence ships baked into the very commit that makes it false.
-  Same root cause as the earlier version-staleness fixes: a fact restated
-  in committed prose that the next documented step is guaranteed to
-  invalidate. Wake Up's step 3c already independently checks live git
-  state rather than trusting `HANDOFF.md` for this, so the note was never
-  load-bearing to begin with.
+- **Why:** testing caught a real bug — Debrief writes `HANDOFF.md` before
+  asking for commit permission, so on a project's first-ever commit (or
+  any time the note truthfully says "not committed yet") that sentence
+  ships baked into the very commit that makes it false. Same root cause as
+  the earlier version-staleness fixes: a fact restated in committed prose
+  that the next documented step is guaranteed to invalidate. Wake Up's
+  step 3c already independently checks live git state rather than
+  trusting `HANDOFF.md` for this, so the note was never load-bearing to
+  begin with.
 - **Change:** clarified that the bullet covers genuinely separate
-  uncommitted work still open beyond the session, not this Debrief's own
-  in-flight commit decision. Applied identically to both `commands/debrief.md`
-  (template source) and `.claude/commands/debrief.md` (functional copy) to
-  keep them in sync.
-- Closes open item `debrief-self-stale-handoff-note` in
-  `tests/notes/open-items.md`.
+  uncommitted work still open beyond the current session, not Debrief's
+  own in-flight commit decision. Applied identically to both
+  `commands/debrief.md` (template source) and `.claude/commands/debrief.md`
+  (functional copy) to keep them in sync.
 
 ## ver-0.2.0.1 - 2026-09-04
 
 Wording clarification only: README.md's Getting Started step 5 now spells
 out what "wait on a real answer" means for the Astrid question.
 
-- **Why:** this session's cycle-3 simulation test confirmed the mechanism
-  already works correctly — a non-interactive dispatch ends its turn with
-  the question and gets re-invoked with the answer, which is exactly how a
-  live interactive session also naturally works (ask in chat, the turn
-  ends, the user's next message continues it). Nothing was implemented
-  wrong; the old wording just didn't name that mechanism, which could read
-  as implying synchronous in-turn blocking to a future reader.
+- **Why:** testing confirmed the mechanism already works correctly — a
+  non-interactive dispatch ends its turn with the question and gets
+  re-invoked with the answer, which is exactly how a live interactive
+  session also naturally works (ask in chat, the turn ends, the user's
+  next message continues it). Nothing was implemented wrong; the old
+  wording just didn't name that mechanism, which could read as implying
+  synchronous in-turn blocking to a future reader.
 - **Change:** added one clarifying clause to step 5 — no change to the
   underlying policy, which is still opt-out-by-default with a real decline
   required to skip Astrid.
-- Closes open item `readme-step5-turn-semantics` in
-  `tests/notes/open-items.md`.
 
 ## ver-0.2.0.0 - 2026-09-04
 
 Policy change: Astrid (the personality/voice layer) is now brought in by
 default when bootstrapping a new project, instead of purely opt-in.
 
-- **Why:** a simulation-loop test this session ran a blind fresh bootstrap
-  through README.md's existing Getting Started flow, and `luna-core-qa-tester`
-  confirmed Astrid never gets adopted unless a user proactively asks for
-  her — exactly what the old wording specified. That was correct behavior
-  under the old policy, but the user decided the policy itself should flip:
-  most people bootstrapping a project want the same personality this kit was
-  itself developed with, and shouldn't have to already know to ask for it.
+- **Why:** testing ran a fresh bootstrap through README.md's existing
+  Getting Started flow and confirmed Astrid never gets adopted unless
+  someone proactively asks for her — exactly what the old wording
+  specified. That was correct behavior under the old policy, but the
+  policy itself needed to flip: most people bootstrapping a project want
+  the same personality this kit was itself developed with, and shouldn't
+  have to already know to ask for it.
 - **New default:** README.md's Getting Started step 5 now has the session
   introduce Astrid right after bootstrap finishes — a short blurb on what
   she is, a plain statement that she'll be brought in unless the user says
@@ -231,9 +225,9 @@ sync with its own template source.
 ## ver-0.1.6.0 - 2026-09-03
 
 Large bug fix: `merge-memory.sh`'s `MEMORY.md` union only ever wrote back in
-one direction. Found independently of the two-PC simulation-loop batch
-below — during a routine memory-merge step in an earlier pass — so it gets
-its own version bump rather than folding into that one.
+one direction. Found independently of the onboarding-testing batch below
+— during a routine memory-merge step — so it gets its own version bump
+rather than folding into that one.
 
 - **Fixed `merge_index()` silently dropping one side's exclusive entries
   when the other side was a strict superset.** The write-back that copies
@@ -245,8 +239,7 @@ its own version bump rather than folding into that one.
   0 with no warning, and in some cases printed `MEMORY.md: differs`
   immediately followed by the contradictory `Both sides already agree.
   Nothing copied.` This ran directly against the function's own documented
-  purpose and against `ref/docs/merge-memory.md`'s description of the same
-  union behavior. Fixed by adding a second scan over the newer side's own
+  purpose. Fixed by adding a second scan over the newer side's own
   entries (a `gap` counter, alongside the existing `added` counter) and
   widening the write-back gate to fire when either counts anything. Does
   not touch the pre-existing conflict path — same-target entries with
@@ -254,8 +247,8 @@ its own version bump rather than folding into that one.
 
 ## ver-0.1.5.0 - 2026-09-03
 
-Two real defects found by a two-PC blind onboarding/handoff simulation test
-(cycle 1) and fixed, landing together as one large-bug-fix bump.
+Two real defects found by onboarding/handoff testing across two machines
+and fixed, landing together as one large-bug-fix bump.
 
 - **Fixed `bootstrap-new-project.sh` mangling the one filename it must never
   rename.** The `awk` rename chain that copies each `agents/luna-core-*.md`
@@ -281,7 +274,7 @@ Two real defects found by a two-PC blind onboarding/handoff simulation test
   for her — `CLAUDE.md`'s existing `git -C ../Astrid pull` instruction
   silently assumes the clone is already there, which it never is on a
   machine that's never worked on this project before. Caught by an actual
-  blind-subagent simulation run that hit exactly this gap.
+  run on a genuinely clean machine that hit exactly this gap.
 
 ## ver-0.1.4.0 - 2026-09-03
 
@@ -448,8 +441,6 @@ together as one large-bug-fix bump.
   to the whole validator. The rebuilt check found one real drift on its
   first live run: the research agent's functional copy had lost a
   `(branch `dev`)` parenthetical, previously masked by the old filter.
-  Resolves the two open items this had been tracked under
-  (`tests/notes/open-items.md` OI-1 and OI-2).
 - **Extended `CLAUDE.md`'s interface-verification rule to plan tasks, not
   just tests**, and added a new rule requiring a row-by-row conflict scan
   before dispatching parallel agents rather than a verbal "looks clean."
@@ -473,8 +464,7 @@ one — see the reasoning below.
   sat unexplained. Each page covers what its script does, how it's invoked,
   what it writes inside versus outside the repo, its refusal conditions, and
   the non-obvious traps mined from source comments — several of which record
-  real failures. The pages cite `tests/notes/live-checks.md` for measured
-  behavior rather than duplicating it.
+  real failures.
 - **Ruled: `ref/docs/*.md` pages are dev-only, not shared with `main`.**
   `main` is what a fresh consumer clones — someone who has never run this
   project — and these pages document *this* project's own internals, useless
@@ -544,17 +534,11 @@ the starting commit.
   real interface from planning time into implementation time. The new
   section requires confirming an interface actually exists, by reading
   source or type definitions, before writing a test against it.
-- **Corrected the recorded Claude license tier** in `.claude-memory/` from
-  Business Standard (teams) to Max 5x (personal) — the wrong tier had been
-  silently under-routing dispatches to Sonnet — and added
-  `feedback_fable_manual_only.md` to record the Fable boundary above outside
-  any one project's `CLAUDE.md`.
 - **Extended test coverage** for all three script fixes above, plus a newly
   documented blind spot in the template-vs-functional drift check: its
   filter for lines mentioning `luna-core-` is broad enough to silently wave
   through a semantic edit to any line containing that token, including an
-  inversion of a "what you don't do" constraint. Two open questions from
-  that work are tracked in `tests/notes/open-items.md` as OI-1 and OI-2.
+  inversion of a "what you don't do" constraint.
 
 ## ver-0.1.0.0 - 2026-09-02
 
@@ -590,7 +574,6 @@ bootstrapped from.
   every other referenced folder has a mandatory file checked by name. Git tracks files rather than
   directories, so a folder whose keeper was deleted is simply absent after the
   next clone — a failure that appears on the second machine, not the first.
-  The recipe for re-proving it is in `tests/notes/live-checks.md`.
 - The hub is a private GitHub repository at
   `https://github.com/LunaBelleElite/Luna-Core.git`, wired as `origin` on
   `dev`. Neither the hub nor the working copy at
