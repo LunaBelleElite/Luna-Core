@@ -17,6 +17,27 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-0.2.1.1 - 2026-09-04
+
+Closed a gap in how `CHANGELOG.md` published to `main`: it had been treated
+as a straight copy of `dev`'s entries (just strip the `-dev` suffix), which
+let internal development narrative and citations to files that don't exist
+on `main` reach it verbatim.
+
+- **Why:** `main` is meant to be a clean package — something a new project
+  can adopt without carrying artifacts of how Luna-Core itself was built.
+  The existing rule already stripped that kind of content from
+  `ref/docs/`, `.claude-memory/`, `handoff/`, and `.claude/agents/*.md`,
+  but never applied it to `CHANGELOG.md`.
+- **Change:** `dev`'s `CHANGELOG.md` remains the real, detailed history,
+  untouched. `main`'s copy is now a curated rewrite of each entry, not a
+  byte-copy: narrative framing and dead citations to paths that don't
+  exist on `main` are cut, while every bit of real technical substance —
+  what changed, the actual mechanism, why, how it was verified — survives
+  in full, the same kind of divergence already used for
+  `handoff/HANDOFF.md`. Applied retroactively to the existing history, and
+  folded into the standard merge process going forward.
+
 ## ver-0.2.1.0 - 2026-09-04
 
 Corrected a stale credibility claim in README.md, and added a standing
