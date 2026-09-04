@@ -141,6 +141,33 @@ newly arrived ones should be available going forward — but if anything
 you then read suggests otherwise, tell the user to restart the session
 rather than quietly proceeding as though the memory is live.
 
+**3a-ii. Check for a sibling-clone dependency (e.g. Astrid), and make sure
+it's actually present.**
+
+Read this project's own `CLAUDE.md` "This project's toolkit" section for a
+"Personality & voice" line. **If there is no such line, skip this step
+entirely** — not every bootstrapped project declares a sibling-clone
+dependency.
+
+If there is one, it names a repo URL, a relative path (normally `../Astrid`
+next to this project), and a branch to keep it on (normally `dev`). Check
+whether that directory already exists on this machine:
+
+- **It doesn't exist yet** — this is the new-machine case, and it's exactly
+  why this step exists: `CLAUDE.md`'s own instruction to `git -C ../Astrid
+  pull` assumes the clone is already there, which it never is on a machine
+  that's never worked on this project before. Clone it fresh at the
+  documented path and branch.
+- **It already exists** — `git -C <path> pull` exactly as `CLAUDE.md`
+  already instructs, to bring it current.
+
+Either way, **confirm the files the toolkit line says to read are actually
+present afterward** (e.g. `PERSONALITY.md` and `VOICE.md` for Astrid) — a
+clone or pull that exits 0 isn't proof the expected content is there. If
+something needed is missing or the clone/pull fails, follow the standing
+rule above: report it and give the exact command to fix it, don't report
+the project ready to work on until it's resolved.
+
 **3b. Run the setup validator.**
 
 Run `bash scripts/validate-luna-core-setup.sh`. One call covers the
