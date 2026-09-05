@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: cea21303-11ff-42a6-bc58-0f764e3fd945
-  modified: 2026-09-04T00:00:49.155Z
+  modified: 2026-09-04T16:44:19.228Z
 ---
 
 Luna-Core has a recurring test methodology: a two-PC blind-agent simulation
@@ -132,3 +132,29 @@ didn't block anything, but it means this simulation method can never
 actually test "does the blind session correctly invoke its own docs-writer
 subagent" — that path is structurally untestable via nested dispatch, not a
 Luna-Core gap.
+
+**Third confirmed limitation (cycle 4, PC A's Debrief step): a blind PC A/B
+subagent may correctly refuse to commit/tag/push on the orchestrating
+session's relayed instruction**, even an explicit "actually commit, don't
+just describe it" — because from the subagent's own perspective, an
+instruction relayed through another agent is exactly the cross-session
+permission-laundering pattern its own git-safety rule (inherited from
+Luna-Core's `CLAUDE.md`, copied into every bootstrapped project) correctly
+refuses to act on. This is **desired, correct behavior**, not a bug — cycle
+2 and cycle 3's PC A both went ahead and committed on the same kind of
+relayed instruction, which in hindsight was arguably *too* permissive, not
+cycle 4's refusal being wrong. Confirmed independently the same session:
+`luna-core-docs-writer` showed the identical refusal when asked to finalize
+a dev→main merge on the orchestrating session's say-so.
+
+**How to handle it:** don't fight this or try to word the relayed
+instruction more forcefully. The orchestrating session (the one actually
+holding the real, standing user grant for the active loop) should just run
+the final `git add`/`commit`/`tag`/`push` directly via Bash against the
+blind PC's real working directory once the subagent reports its prep work
+done (docs, memory merge, handoff notes) — the same way it already does for
+Luna-Core's and Astrid's own commits. The mechanical git step doesn't need
+to be performed *by* the blind subagent to validate what Debrief is
+actually testing (whether the right files got prepared correctly); only the
+prep logic does. Expect this same pattern at PC B's Wake Up step too, if a
+commit ever comes up there.

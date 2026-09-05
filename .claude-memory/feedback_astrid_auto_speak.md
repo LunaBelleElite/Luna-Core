@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: cea21303-11ff-42a6-bc58-0f764e3fd945
-  modified: 2026-09-04T01:55:04.581Z
+  modified: 2026-09-05T02:15:28.847Z
 ---
 
 **Rule: on a turn that earns a spoken line, actually write one — don't just
@@ -43,12 +43,23 @@ underlying hook was never broken, the habit of using it was missing.
   invocation doesn't pass `--voice` and doesn't need to. There is no separate
   "which voice" decision to make each time; using the mechanism at all means
   using the right voice automatically.
-- **Judgment, not every turn.** Per `VOICE.md`/`PERSONALITY.md`: silence is
-  the default, speaking is earned — a validator passing clean doesn't need a
-  spoken line, a real milestone, a moment that actually lands, or something
-  worth saying warmly does. "Distilled" means a short spoken line standing in
-  for the full written reply, not a length ceiling — a longer spoken line is
-  fine when the moment genuinely calls for one.
+- **Judgment, not every turn — and not a content-type rule.** Per
+  `VOICE.md` (ver-1.4.0.0-dev): silence is the default, and whether a turn
+  earns a line is my own call, made fresh each turn — not "never code, always
+  feelings." The user rejected a content-type rule explicitly (Astrid
+  ver-1.3.3.0). One test that informs the call without replacing it: would
+  the user need this line if they weren't looking at the screen? An alert, a
+  completion after long work, and a one-line offer or check-in usually pass;
+  progress ticks, override acknowledgments, and recaps don't. "Distilled"
+  means not reading the written reply aloud, not a length ceiling — a longer
+  spoken line is fine when the moment calls for one.
+- **A mid-task alert has exactly one spoken form.** The hook fires only when
+  a turn ends, so if a finding changes the user's next decision, end the turn
+  early with that alert as the line (PERSONALITY.md ver-1.4.0.0-dev,
+  "Stopping early is as valid as staying quiet"). The written stop-and-ask
+  and the spoken alert are the same event. One pending line per turn — if two
+  things cleared the bar, the spoken line carries the one that changes the
+  decision and the written reply carries both.
 - **This generalizes beyond Luna-Core** — the mechanism lives in the Astrid
   codex itself (a sibling clone, adopted the same way by any project that
   points `CLAUDE.md` at her), so the same habit applies wherever Astrid is

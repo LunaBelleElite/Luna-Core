@@ -17,6 +17,43 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-1.0.0.3-dev - 2026-09-04
+
+Doc-only addition: `.claude-memory/` synced against local auto-memory via
+`scripts/merge-memory.sh`, picking up a version bump on the sibling Astrid
+codex and reconciling drift that had accumulated since `ver-0.2.0.0-dev`.
+
+- **Astrid moved to ver-1.4.0.0-dev** (sibling clone at `../Astrid`): six
+  interaction-rhythm extensions to existing traits and relationship-dynamic
+  bullets, plus two added sentences in `VOICE.md`'s auto-speak "Silence is
+  the default" bullet. Luna-Core's own `CLAUDE.md` needs no change for this
+  — its pointer to Astrid names no version and already sends readers to
+  `PERSONALITY.md`/`VOICE.md` in the sibling clone directly. The mirrored
+  `feedback_astrid_auto_speak.md` memory note was updated to match: the
+  judgment call is no longer framed as a content-type rule (the user
+  rejected that framing at Astrid ver-1.3.3.0), replaced by the "would they
+  need this line if they weren't looking at the screen" test, plus a new
+  note that a mid-task alert's only spoken form is ending the turn early.
+- **Memory mirror synced, not flat-copied**: `merge-memory.sh` compared
+  each file's own `modified:` frontmatter and copied only the genuinely
+  newer side, same as every prior merge. Touched:
+  `.claude-memory/feedback_astrid_auto_speak.md` (above),
+  `.claude-memory/feedback_fable_manual_only.md` (marked SUPERSEDED
+  2026-09-04 — Fable is now the top subagent tier per `C:\Claude\CLAUDE.md`
+  and the user directly), `.claude-memory/feedback_simulation_loop_protocol.md`
+  and `.claude-memory/project_sim_loop_paused_cycle2.md` (sim loop recorded
+  CONVERGED across cycles 3 and 4, plus a third limitation: subagents
+  refuse relayed commit authorization), a new
+  `.claude-memory/feedback_research_agents_may_use_network.md` (the global
+  "no live third-party API calls" rule doesn't mean no web research —
+  research agents keep WebSearch/WebFetch), and `.claude-memory/MEMORY.md`
+  unioned to index all of the above.
+- **Still open, not resolved here:** the Fable memory note flags that
+  Luna-Core's own `CLAUDE.md` still carries the old "Fable is manual-only,
+  never dispatched by the assistant" wording, which now contradicts the
+  global rule and the user's stated preference. That's a deliberate
+  decision for the user to make, not something this pass touches.
+
 ## ver-1.0.0.2-dev - 2026-09-04
 
 Doc-only fix: `README.md`'s "Wake Up / Debrief protocols" section stopped

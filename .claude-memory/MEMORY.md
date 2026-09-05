@@ -4,8 +4,9 @@
 - [Handoff only at Debrief](feedback_handoff_only_at_debrief.md) — don't rewrite handoff/HANDOFF.md after every mid-session milestone; it's for session-end, not a running log
 - [User's license tier](user_license_tier.md) — Claude Max 5x (personal); dynamically pick best-suited model per task, never a standing default
 - [Claude Code skill stack setup](claude_code_skill_stack_setup.md) — how the skill sources install, the GadaaLabs installer bugs found, and what is actually installed on ASUNA-PC
-- [Fable is manual-only](feedback_fable_manual_only.md) — assistant routes only across Sonnet/Opus, never dispatches an agent on Fable, even on Max/Premium tiers; user invokes Fable themselves
+- [Fable routing (superseded rule)](feedback_fable_manual_only.md) — Fable is now the top subagent tier, dispatchable when it genuinely fits; old "manual-only" rule retired 2026-09-04. Luna-Core's CLAUDE.md still has the old wording, needs reconciling
 - [Simulation loop protocol](feedback_simulation_loop_protocol.md) — two-PC blind-agent onboarding/handoff test for Luna-Core; scoped pre-auth to commit/tag/push/merge-main only while a loop runs
-- [Sim loop paused before cycle 2](project_sim_loop_paused_cycle2.md) — cycle 1 fixes merged to main (ver-0.1.6.1), PC A onboards from main so this mattered; next session opens with a README/CHANGELOG wordiness pass
+- [Sim loop status](project_sim_loop_paused_cycle2.md) — CONVERGED: cycles 3 & 4 both clean, stopping condition met; a few low-priority open items remain for later
 - [Use Astrid's auto-speak](feedback_astrid_auto_speak.md) — write a spoken line to astrid-voice-state\last_line.txt on turns that earn one; established Sky+Jessica voice is already the default, no extra flag needed
+- [Research agents may use the network](feedback_research_agents_may_use_network.md) — the global "no-network" brief rule means no live third-party API calls, not no web research; never blanket-block WebSearch/WebFetch for a research agent
 - [Astrid shares this memory scope](project_astrid_shares_this_memory_scope.md) — deliberate, user-directed: Astrid repo work is logged here too, not split into her own memory bucket; her agents can't be invoked by name from a Luna-Core-rooted session
