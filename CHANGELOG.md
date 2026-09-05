@@ -17,6 +17,40 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-1.0.0.4-dev - 2026-09-04
+
+Doc-only fix: `README.md`'s opening blockquote and Status paragraph no
+longer describe Luna-Core as unmaintained or unstable — both claims had
+become false and the user asked for them gone.
+
+- **Opening blockquote reworded:** dropped "not a maintained product" in
+  favor of describing Luna-Core as a personal project actively maintained
+  by one person working directly with Claude, one that grows and changes
+  as that person's own projects need it to and is shared so others can use
+  it rather than offered as a product with a roadmap or support
+  commitment. The Claude/Claude Code framing and the pointer to "Status,"
+  below are unchanged.
+- **Status paragraph's opening rewritten:** replaced "not a finished,
+  stable release, and it changes often" with a statement that the project
+  is a stable release — `ver-1.0.0.0` was put out as exactly that — that
+  remains actively maintained and evolving, may still have bugs, and will
+  keep changing over time; "it changes often" was dropped outright rather
+  than reworded, since how often is unknown. The date was moved to
+  **2026-09-04**. Everything after that opening — the `main`-vs-`dev`
+  cloning guidance, the "onboarding path has been tested and verified
+  working" sentence, and the "still a young, actively-changing project"
+  caveat — is untouched.
+- **Contributing section left alone**, per the user's explicit choice: it
+  still describes Luna-Core as "a personal, vibe-coded project with one
+  author."
+- **Searched for the same claims elsewhere** (`CLAUDE.md`, `agents/`,
+  `.claude/agents/`, `commands/`, `.claude/commands/`): none found. Two
+  unrelated hits turned up and were left alone: `CHANGELOG.md`'s own
+  `ver-0.2.1.0-dev` entry, which is a historical record of what the README
+  used to say and stays accurate as history; and `ref/docs/check-superpowers.md`,
+  whose "not finished downloading/caching" is about a script's runtime
+  state, not a claim about Luna-Core itself.
+
 ## ver-1.0.0.3-dev - 2026-09-04
 
 Doc-only addition: `.claude-memory/` synced against local auto-memory via

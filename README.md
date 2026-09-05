@@ -5,17 +5,19 @@ researcher, a test writer, an implementer), two session-boundary rituals
 (Wake Up / Debrief), a versioning scheme, and the scripts that install all of
 it into a brand-new project in two commands.
 
-> **This is a vibe-coded personal project, not a maintained product.** It was
-> built by one person working directly with Claude, for their own use, and is
-> shared as-is. It's specifically designed around Claude and Claude Code —
-> other AI tools aren't a target and may not work with it at all. Expect
-> rough edges, and see "Status," below, before assuming any given piece is
-> settled.
+> **This is a personal project, actively maintained by one person working
+> directly with Claude.** It grows and changes as that person's own projects
+> need it to, and is shared so others can use it, not as a product with a
+> roadmap or a support commitment. It's specifically designed around Claude
+> and Claude Code; other AI tools aren't a target and may not work with it at
+> all. Expect rough edges, and see "Status," below, before assuming any given
+> piece is settled.
 
-**Status:** actively under development as of **2026-09-03** — not a
-finished, stable release, and it changes often. If you're adopting this,
-clone the `main` branch specifically, not `dev`: `main` is the settled
-snapshot meant for exactly this; `dev` is where active work happens and can
+**Status:** a stable release, actively maintained and evolving as of
+**2026-09-04**. It may still have bugs, and it will keep changing over time.
+If you're adopting this, clone the `main` branch specifically, not `dev`:
+`main` is the settled snapshot meant for exactly this; `dev` is where active
+work happens and can
 be mid-change at any given moment, including content specific to this
 project's own history that a new adopter doesn't need. **The onboarding path
 has been tested and verified working.** This is still a young,
