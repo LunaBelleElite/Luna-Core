@@ -17,6 +17,44 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-1.0.0.5-dev - 2026-09-04
+
+Doc-only correction: the `ver-1.0.0.3-dev` entry below reported that the
+mirrored `feedback_fable_manual_only.md` memory note had been marked
+SUPERSEDED — Fable said to have become the top subagent tier, dispatchable
+by the assistant, with Luna-Core's `CLAUDE.md` said to still carry the old
+"manual-only" wording needing reconciling. The user has since corrected
+that directly: Fable is manual-only, universally — the user invokes it
+themselves, the assistant never dispatches an agent on Fable — and that
+rule was never superseded. Tonight's Fable use was a temporary,
+budget-based exception the user granted for work that genuinely fit
+("tokens for this week we can burn... if it fits the proper need"), not a
+change to the standing rule.
+
+- **`CLAUDE.md`'s "Match model to license tier and task" Fable text is
+  correct as written and was not changed** — the "hard constraint, not a
+  preference to weigh against task fit" wording that the `ver-1.0.0.3-dev`
+  entry flagged as needing reconciliation needed no reconciliation; it was
+  the memory note that had drifted, not this file.
+- **`.claude-memory/feedback_fable_manual_only.md` rewritten**: no longer
+  describes the manual-only rule as superseded. States the standing rule
+  plainly, records the 2026-09-04 exception as scoped and temporary (spare
+  token budget, genuine fit only, expired once no longer explicitly
+  renewed), and adds a correction trail noting the earlier SUPERSEDED
+  wording was wrong and citing this entry rather than asking anyone to
+  edit `ver-1.0.0.3-dev` retroactively.
+- **`.claude-memory/MEMORY.md`'s index line reconciled by hand** to match,
+  per `scripts/merge-memory.sh`'s own instruction for a conflicting-content
+  case: title changed from "Fable routing (superseded rule)" back to
+  "Fable is manual-only," summary updated to describe the standing rule and
+  the scoped exception instead of a rule change.
+- **The `ver-1.0.0.3-dev` entry itself is left untouched** — it stays as
+  the historical record of what was believed and written at the time, not
+  edited to match this correction.
+- Note: the corresponding machine-global rules file (`C:\Claude\CLAUDE.md`)
+  was also corrected to match, but that file lives outside this repo and is
+  not part of this change.
+
 ## ver-1.0.0.4-dev - 2026-09-04
 
 Doc-only fix: `README.md`'s opening blockquote and Status paragraph no

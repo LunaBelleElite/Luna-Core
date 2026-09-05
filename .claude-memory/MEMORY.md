@@ -4,7 +4,7 @@
 - [Handoff only at Debrief](feedback_handoff_only_at_debrief.md) — don't rewrite handoff/HANDOFF.md after every mid-session milestone; it's for session-end, not a running log
 - [User's license tier](user_license_tier.md) — Claude Max 5x (personal); dynamically pick best-suited model per task, never a standing default
 - [Claude Code skill stack setup](claude_code_skill_stack_setup.md) — how the skill sources install, the GadaaLabs installer bugs found, and what is actually installed on ASUNA-PC
-- [Fable routing (superseded rule)](feedback_fable_manual_only.md) — Fable is now the top subagent tier, dispatchable when it genuinely fits; old "manual-only" rule retired 2026-09-04. Luna-Core's CLAUDE.md still has the old wording, needs reconciling
+- [Fable is manual-only](feedback_fable_manual_only.md) — standing rule: never dispatch agents on Fable; a temporary budget-based exception was granted 2026-09-04 for work that genuinely fits, not a rule change. Luna-Core's CLAUDE.md wording is correct; the global C:\Claude\CLAUDE.md "Fable is top tier" line is the one that's wrong
 - [Simulation loop protocol](feedback_simulation_loop_protocol.md) — two-PC blind-agent onboarding/handoff test for Luna-Core; scoped pre-auth to commit/tag/push/merge-main only while a loop runs
 - [Sim loop status](project_sim_loop_paused_cycle2.md) — CONVERGED: cycles 3 & 4 both clean, stopping condition met; a few low-priority open items remain for later
 - [Use Astrid's auto-speak](feedback_astrid_auto_speak.md) — write a spoken line to astrid-voice-state\last_line.txt on turns that earn one; established Sky+Jessica voice is already the default, no extra flag needed
