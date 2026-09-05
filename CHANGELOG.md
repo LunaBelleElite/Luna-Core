@@ -17,6 +17,50 @@ Any number can climb arbitrarily high. When a higher-order number increments, ev
 
 (Full detail, including the "why," lives in `CLAUDE.md`. This section is not edited when entries below are added — only when the scheme itself changes.)
 
+## ver-1.0.0.6-dev - 2026-09-05
+
+Doc-only: `.claude-memory/` synced against local auto-memory via
+`scripts/merge-memory.sh`, picking up a new Fable exception, a locked Astrid
+roadmap, and a remote voice-relay config built earlier today.
+
+- **New standing exception recorded: Fable on Luna-Core and Astrid only.**
+  The user's own words: "For Luna-Core and Astrid, when working on the
+  projects, I am giving you the ability to use the Fable model when it is
+  appropriate." `.claude-memory/feedback_fable_manual_only.md` rewritten to
+  record it, separately from (and narrower in scope than) the already-lapsed
+  2026-09-04 budget-based exception covered in `ver-1.0.0.5-dev` above: in
+  these two repos only, the assistant may dispatch agents on Fable without
+  asking each time when a task genuinely fits (hard design, precision-on-
+  first-pass spec/personality prose, subtle non-local debugging); mechanical
+  work still goes to Sonnet and Opus remains the ordinary top of the routing
+  range. Manual-only stands unchanged everywhere else. **Deliberately not
+  written into this repo's own `CLAUDE.md`** — verified as still correct and
+  unedited (see below) — because that file is copied verbatim into every
+  bootstrapped project, and this carve-out is specific to these two repos.
+- **New file `.claude-memory/project_astrid_voice_humanization_roadmap.md`**:
+  a locked, ordered 4-item plan for making Astrid's synthesized voice sound
+  more human (pause/speed measurement, folding the findings into the codex,
+  a second-voice-vector search, dynamic splice-based delivery), with item
+  1's measurements and a working prosody-edit recipe already recorded. This
+  is Astrid-project working memory mirrored here per the existing "Astrid
+  shares this memory scope" convention — not a Luna-Core change.
+- **`.claude-memory/feedback_astrid_auto_speak.md` expanded**: records the
+  working configuration for relaying Astrid's spoken audio to an Android
+  phone during remote sessions (self-hosted ntfy + a small mp3 server, both
+  as logon scheduled tasks, plus a Tasker profile), the approaches ruled out
+  along the way, and machine-specific gotchas hit while building it. The
+  relay mechanism itself already shipped today as its own Astrid-repo
+  version (`ver-1.5.0.0-dev`); this file is this machine's working record of
+  it, not a duplicate of Astrid's own docs.
+- **`.claude-memory/MEMORY.md` reconciled to match**: the Fable index line's
+  summary updated for the new exception, and a new line added for the
+  roadmap file.
+- **Confirmed, not changed:** `CLAUDE.md`'s "Match model to license tier and
+  task" → point 1 Fable wording ("manual-only, never dispatched by the
+  assistant... hard constraint, not a preference to weigh against task fit")
+  is still correct as written and needs no edit — the exception above is
+  memory-only by design, for the reason stated above.
+
 ## ver-1.0.0.5-dev - 2026-09-04
 
 Doc-only correction: the `ver-1.0.0.3-dev` entry below reported that the
